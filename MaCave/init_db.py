@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Script d'initialisation de la base SQLite locale."""
 
+from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
 

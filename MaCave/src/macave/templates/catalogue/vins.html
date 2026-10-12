@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Catalogue — MaCave{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Catalogue des vins</h2>
+  {% if vins %}
+    <table>
+      <thead>
+        <tr><th>Domaine</th><th>Cuvée</th><th>Type</th><th>Millésime</th><th>Région</th></tr>
+      </thead>
+      <tbody>
+        {% for vin in vins %}
+        <tr>
+          <td>{{ vin.domaine }}</td>
+          <td>{{ vin.cuvee }}</td>
+          <td>{{ vin.type_vin }}</td>
+          <td>{{ vin.millesime }}</td>
+          <td>{{ vin.region }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Le catalogue est vide.</p>
+  {% endif %}
+</div>
+{% endblock %}

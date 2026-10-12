@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Mes étagères — MaCave{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Mes étagères</h2>
+
+  <form method="post" action="{{ url_for('cave.ajouter_etagere') }}" class="grid-2" style="margin-top: 1rem;">
+    <div>
+      <label>Nom</label>
+      <input name="nom" placeholder="Ex. Bordeaux" required>
+    </div>
+    <div>
+      <label>Capacité max</label>
+      <input type="number" name="capacite" min="1" required>
+    </div>
+    <div style="grid-column: 1 / -1;">
+      <button type="submit">Ajouter l'étagère</button>
+    </div>
+  </form>
+</div>
+
+<div class="card">
+  {% if etageres %}
+    <table>
+      <thead>
+        <tr><th>Nom</th><th>Capacité</th><th>Occupation</th><th>Libre</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for e in etageres %}
+        <tr>
+          <td>{{ e.nom }}</td>
+          <td>{{ e.capacite_max }}</td>
+          <td>{{ e._occupation|default(0) }}</td>
+          <td>{{ e.capacite_max - (e._occupation|default(0)) }}</td>
+          <td>
+            <form method="post" action="{{ url_for('cave.supprimer_etagere', etagere_id=e.id) }}" style="display:inline;">
+              <button type="submit" onclick="return confirm('Supprimer cette étagère ?')" style="background:#c62828;">Supprimer</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Aucune étagère pour l'instant.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Tableau de bord — MaCave{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>Mon tableau de bord</h2>
+  <div class="grid-2" style="margin-top: 1rem;">
+    <div class="stat-box">
+      <div class="value">{{ stats.nb_bouteilles }}</div>
+      <div class="label">Bouteilles en stock</div>
+    </div>
+    <div class="stat-box">
+      <div class="value">{{ stats.nb_references }}</div>
+      <div class="label">Références distinctes</div>
+    </div>
+    <div class="stat-box">
+      <div class="value">{{ stats.valeur_totale }} €</div>
+      <div class="label">Valeur totale</div>
+    </div>
+    <div class="stat-box">
+      <div class="value">
+        {% if stats.occupation_globale is not none %}
+          {{ "%.1f"|format(stats.occupation_globale) }} %
+        {% else %}
+          —
+        {% endif %}
+      </div>
+      <div class="label">Occupation globale</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Mes étagères</h3>
+  {% if etageres %}
+    <table>
+      <thead>
+        <tr><th>Nom</th><th>Capacité max</th><th>Occupation</th><th>Places libres</th></tr>
+      </thead>
+      <tbody>
+        {% for e in etageres %}
+        <tr>
+          <td>{{ e.nom }}</td>
+          <td>{{ e.capacite_max }}</td>
+          <td>{{ e._occupation }}</td>
+          <td>{{ e.capacite_max - e._occupation }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="{{ url_for('cave.etageres') }}" class="btn" style="margin-top: 1rem;">Gérer les étagères</a>
+  {% else %}
+    <p>Aucune étagère. <a href="{{ url_for('cave.etageres') }}">En créer une</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

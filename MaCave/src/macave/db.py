@@ -43,5 +43,23 @@ class Database:
     def connection(self) -> sqlite3.Connection:
         """Retourne la connexion active (à utiliser uniquement entre enter/exit)."""
         if self._connection is None:
-            raise RuntimeError("La connexion n'est pas ouverte. Utiliser 'with Database() as db:'")
+            raise RuntimeError(
+                "La connexion n'est pas ouverte. Utiliser 'with Database() as db:'"
+            )
         return self._connection
+
+
+def get_db(db_path: Path | str = "macave.db") -> sqlite3.Connection:
+    """Retourne une nouvelle connexion SQLite (usage hors-Flask / tests).
+
+    Args:
+        db_path: Chemin vers le fichier SQLite.
+
+    Returns:
+        Connexion configurée avec `row_factory = sqlite3.Row` et
+        foreign_keys activées.
+    """
+    conn = sqlite3.connect(Path(db_path))
+    conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
+    return conn
