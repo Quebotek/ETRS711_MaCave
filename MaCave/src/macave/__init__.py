@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from flask import Flask, g
+from flask import Flask, g, session
 
 from . import db as db_module
 
@@ -34,9 +34,17 @@ def create_app(config_name: str = "dev") -> Flask:
 
     # Gestion de la base de données par requête
     @app.before_request
-    def _open_db() -> None:
+    def _prepare_request() -> None:
         if "db" not in g:
             g.db = db_module.Database(app.config["DATABASE"]).__enter__()
+
+        from macave.services import auth_service
+
+        user_id = session.get("user_id")
+        if user_id is None:
+            g.user = None
+        else:
+            g.user = auth_service.get_user_by_id(user_id, g.db)
 
     @app.teardown_appcontext
     def _close_db(exception: BaseException | None = None) -> None:

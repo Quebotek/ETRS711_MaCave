@@ -76,13 +76,3 @@ def logout():
     session.clear()
     flash("Vous êtes déconnecté.", "info")
     return redirect(url_for("auth.login"))
-
-
-@bp.before_app_request
-def load_logged_in_user():
-    """Charge l'utilisateur connecté dans `g.user` à chaque requête."""
-    user_id = session.get("user_id")
-    if user_id is None:
-        g.user = None
-    else:
-        g.user = auth_service.get_user_by_id(user_id, g.db)
