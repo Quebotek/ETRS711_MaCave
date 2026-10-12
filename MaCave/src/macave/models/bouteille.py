@@ -15,6 +15,7 @@ class Bouteille:
         self,
         id: int | None = None,
         vin_id: int = 0,
+        cave_id: int | None = None,
         etagere_id: int | None = None,
         prix_achat: float = 0.0,
         date_ajout: date = date.today(),
@@ -23,6 +24,7 @@ class Bouteille:
     ) -> None:
         self.id = id
         self.vin_id = vin_id
+        self.cave_id = cave_id
         self.etagere_id = etagere_id
         self.prix_achat = prix_achat
         self.date_ajout = date_ajout
@@ -32,7 +34,8 @@ class Bouteille:
     def __repr__(self) -> str:
         return (
             f"Bouteille(id={self.id}, vin_id={self.vin_id}, "
-            f"etagere_id={self.etagere_id}, statut={self.statut})"
+            f"cave_id={self.cave_id}, etagere_id={self.etagere_id}, "
+            f"statut={self.statut})"
         )
 
     def deplacer(self, nouvelle_etagere) -> bool:

@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Application web collaborative de gestion de cave à vin"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = []
+dependencies = [
+    "werkzeug>=3.0",
+]
 
 [project.scripts]
 macave = "macave:main"

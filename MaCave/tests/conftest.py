@@ -4,6 +4,7 @@ from datetime import date
 
 import pytest
 
+from macave.db import Database
 from macave.models import (
     Bouteille,
     Cave,
@@ -67,3 +68,13 @@ def evaluation_16() -> Evaluation:
         commentaire="Excellente tenue",
         date_degustation=date(2024, 6, 10),
     )
+
+
+@pytest.fixture
+def db():
+    """Base de données SQLite en mémoire, initialisée avec le schéma."""
+    database = Database(":memory:")
+    with database as conn:
+        with open("schema.sql", encoding="utf-8") as f:
+            conn.executescript(f.read())
+        yield conn
