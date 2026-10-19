@@ -198,20 +198,23 @@ def detail_vin(vin_id):
         })
 
     # ─── Recherche VinoFYI pour enrichir la fiche ───
-    vinofyi_info = None
+    vinofyi_query = request.args.get("vinofyi_q", "")
+    vinofyi_info = {"trouve": False, "query": vinofyi_query}
+
     try:
         from macave.services import vinofyi_service
-        # Chercher le vin par nom
-        query = f"{vin['domaine']} {vin['cuvee']}"
+        query = vinofyi_query or f"{vin['domaine']} {vin['cuvee']}"
         results = vinofyi_service.search_wines(query)
         if results:
-            # Prendre le premier résultat
             wine_detail = vinofyi_service.get_wine_detail(results[0]['slug'])
             if wine_detail:
                 note_vinofyi_20 = vinofyi_service.convertir_note_sur_20(
                     wine_detail.get("avg_rating")
                 )
                 vinofyi_info = {
+                    "trouve": True,
+                    "query": query,
+                    "nom": results[0].get("name", ""),
                     "note_vinofyi": note_vinofyi_20,
                     "note_vinofyi_brute": wine_detail.get("avg_rating"),
                     "nb_avis": wine_detail.get("rating_count"),
@@ -220,8 +223,8 @@ def detail_vin(vin_id):
                     "elaboration": wine_detail.get("elaborate"),
                     "alcool": wine_detail.get("abv"),
                 }
-    except Exception:
-        pass  # Ignorer silencieusement si VinoFYI est indisponible
+    except Exception as e:
+        vinofyi_info["erreur"] = str(e)
 
     return render_template(
         "inventaire/detail_vin.html",
