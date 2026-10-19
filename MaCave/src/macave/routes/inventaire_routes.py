@@ -198,12 +198,11 @@ def detail_vin(vin_id):
         })
 
     # ─── Recherche VinoFYI pour enrichir la fiche ───
-    vinofyi_query = request.args.get("vinofyi_q", "")
-    vinofyi_info = {"trouve": False, "query": vinofyi_query}
+    vinofyi_info = {"trouve": False}
 
     try:
         from macave.services import vinofyi_service
-        query = vinofyi_query or f"{vin['domaine']} {vin['cuvee']}"
+        query = f"{vin['domaine']} {vin['cuvee']}"
         results = vinofyi_service.search_wines(query)
         if results:
             wine_detail = vinofyi_service.get_wine_detail(results[0]['slug'])
