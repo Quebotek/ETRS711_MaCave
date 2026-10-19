@@ -27,10 +27,12 @@ def create_app(config_name: str = "dev") -> Flask:
     from .routes.auth_routes import bp as auth_bp
     from .routes.catalogue_routes import bp as catalogue_bp
     from .routes.cave_routes import bp as cave_bp
+    from .routes.inventaire_routes import bp as inventaire_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(cave_bp)
     app.register_blueprint(catalogue_bp)
+    app.register_blueprint(inventaire_bp)
 
     # Gestion de la base de données par requête
     @app.before_request
