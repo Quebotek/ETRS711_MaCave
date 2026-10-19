@@ -29,6 +29,44 @@
         <span class="tag">🍇 {{ vin.type_vin }}</span>
       </div>
 
+      {% if vinofyi_info %}
+      <div class="vinofyi-detail-card">
+        <h4>📊 Informations VinoFYI</h4>
+        <div class="vinofyi-grid">
+          {% if vinofyi_info.note_vinofyi %}
+          <div class="vinofyi-item">
+            <span class="vinofyi-label">⭐ Note</span>
+            <span class="vinofyi-value">{{ vinofyi_info.note_vinofyi }}/5 ({{ vinofyi_info.nb_avis or 0 }} avis)</span>
+          </div>
+          {% endif %}
+          {% if vinofyi_info.corps %}
+          <div class="vinofyi-item">
+            <span class="vinofyi-label">🍷 Corps</span>
+            <span class="vinofyi-value">{{ vinofyi_info.corps }}</span>
+          </div>
+          {% endif %}
+          {% if vinofyi_info.acidite %}
+          <div class="vinofyi-item">
+            <span class="vinofyi-label">🍋 Acidité</span>
+            <span class="vinofyi-value">{{ vinofyi_info.acidite }}</span>
+          </div>
+          {% endif %}
+          {% if vinofyi_info.alcool %}
+          <div class="vinofyi-item">
+            <span class="vinofyi-label">🌡️ Alcool</span>
+            <span class="vinofyi-value">{{ vinofyi_info.alcool }}%</span>
+          </div>
+          {% endif %}
+          {% if vinofyi_info.elaboration %}
+          <div class="vinofyi-item">
+            <span class="vinofyi-label">🛠️ Élaboration</span>
+            <span class="vinofyi-value">{{ vinofyi_info.elaboration }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
       {% if vin.description %}
       <div class="vin-description">
         <h4>Description</h4>
@@ -245,6 +283,42 @@
 
 .vin-description { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
 .vin-description h4 { margin: 0 0 0.5rem 0; color: var(--primary); }
+
+/* ---------- VinoFYI Detail Card ---------- */
+.vinofyi-detail-card {
+  background: linear-gradient(135deg, #f0f7ff, #e3f2fd);
+  border-left: 4px solid #1565c0;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+.vinofyi-detail-card h4 {
+  margin: 0 0 1rem 0;
+  color: #1565c0;
+  font-size: 1.1rem;
+}
+.vinofyi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+.vinofyi-item {
+  background: white;
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+.vinofyi-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+.vinofyi-value {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
 
 /* ---------- Table bouteilles ---------- */
 .bouteilles-table { width: 100%; border-collapse: collapse; }
