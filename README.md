@@ -9,15 +9,14 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
 ## Sommaire
 
 1. [Fonctionnalités principales](#fonctionnalités-principales)
-2. [🆕 Interface Web Enrichie - Inventaire et Notation](#-interface-web-enrichie---inventaire-et-notation)
-3. [Architecture du dépôt et organisation du code](#architecture-du-dépôt-et-organisation-du-code)
-4. [Modèle relationnel et règles de gestion](#modèle-relationnel-et-règles-de-gestion)
-5. [Persistance des données et cycle de vie](#persistance-des-données-et-cycle-de-vie)
-6. [Diagrammes UML (Mermaid)](#diagrammes-uml-mermaid)
-7. [Installation et lancement avec uv](#installation-et-lancement-avec-uv)
-8. [Qualité de code (Ruff) et Tests automatisés (pytest)](#qualité-de-code-ruff-et-tests-automatisés-pytest)
-9. [Jeu de démonstration](#jeu-de-démonstration)
-10. [Limites et perspectives](#limites-et-perspectives)
+2. [Architecture du dépôt et organisation du code](#architecture-du-dépôt-et-organisation-du-code)
+3. [Modèle relationnel et règles de gestion](#modèle-relationnel-et-règles-de-gestion)
+4. [Persistance des données et cycle de vie](#persistance-des-données-et-cycle-de-vie)
+5. [Diagrammes UML (Mermaid)](#diagrammes-uml-mermaid)
+6. [Installation et lancement avec uv](#installation-et-lancement-avec-uv)
+7. [Qualité de code (Ruff) et Tests automatisés (pytest)](#qualité-de-code-ruff-et-tests-automatisés-pytest)
+8. [Jeu de démonstration](#jeu-de-démonstration)
+9. [Limites et perspectives](#limites-et-perspectives)
 
 ---
 
@@ -35,7 +34,7 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
   * Calcul dynamique de la note moyenne communautaire (affichage explicite « Non évalué » si aucune note)[cite: 4].
   * Modification restreinte à l'auteur de l'évaluation[cite: 4].
 * **Tableau de bord personnel :** Nombre de bouteilles, nombre de références distinctes, occupation globale et valeur totale financière du stock (avec gestion explicite sans étagère pour éviter la division par zéro)[cite: 4].
-* **🆕 Interface web enrichie :**
+* **Interface web enrichie :**
   * **Inventaire visuel** avec cartes de vins, **photos** (upload ou URL) et filtres (recherche, type, région).
   * **Fiches de vins détaillées** avec notes communautaires en évidence, **conseils & accords mets-vins**, et toutes les évaluations.
   * **Système de notation complet** : saisie de notes 0-20, commentaires de dégustation, modification de ses propres évaluations.
@@ -43,39 +42,6 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
 
 ---
 
-## 🆕 Interface Web Enrichie - Inventaire et Notation
-
-Une nouvelle interface web complète a été ajoutée pour faciliter la gestion de votre inventaire et le système de notation communautaire :
-
-### Page d'Inventaire (`/inventaire/`)
-* **Vue en cartes** avec photos des vins (quand disponibles)
-* **Filtres intelligents** : recherche par nom, filtre par type de vin, filtre par région
-* **Regroupement par vin** : toutes vos bouteilles d'un même vin sont regroupées
-* **Notes moyennes** affichées directement sur chaque carte
-* **Actions rapides** : archiver une bouteille avec évaluation depuis l'inventaire
-
-### Fiche de Détail d'un Vin (`/inventaire/vin/<id>`)
-* **Note communautaire en évidence** avec nombre d'évaluations
-* **Conseils & accords mets-vins** selon le type de vin (7 types couverts)
-* **Liste de vos bouteilles** avec statut (en stock / archivées)
-* **Toutes les évaluations** de la communauté avec commentaires
-* **Votre évaluation personnelle** modifiable
-* **Actions** : déplacer une bouteille, archiver avec dégustation
-
-### Catalogue Amélioré (`/catalogue/vins`)
-* **Affichage en cartes** avec photos
-* **Notes moyennes** et nombre d'évaluations pour chaque vin
-* **Accès rapide** aux fiches détaillées
-
-### Système de Notation
-* **Notes de 0 à 20** avec commentaires de dégustation
-* **Moyenne communautaire** calculée dynamiquement
-* **Modification** de ses propres évaluations uniquement
-* **Respect des règles métier** : R9 (moyenne arithmétique), R10 (affichage "Non évalué"), R12 (modification par l'auteur uniquement)
-
-Pour plus de détails, consultez `MaCave/NOUVELLES_FONCTIONNALITES.md`.
-
----
 
 ## Architecture du dépôt et organisation du code
 
@@ -114,14 +80,14 @@ ETRS711_MaCave/
     │       │   ├── auth_routes.py
     │       │   ├── catalogue_routes.py
     │       │   ├── cave_routes.py
-    │       │   └── inventaire_routes.py  # 🆕 Routes d'inventaire et notation
+    │       │   └── inventaire_routes.py  # Routes d'inventaire et notation
     │       ├── static/        # Feuilles de style CSS et images
     │       └── templates/     # Vues HTML Jinja2
     │           ├── base.html
     │           ├── auth/
     │           ├── cave/
     │           ├── catalogue/
-    │           └── inventaire/  # 🆕 Templates d'inventaire
+    │           └── inventaire/  # Templates d'inventaire
     └── tests/                 # Tests unitaires et d'intégration
         ├── __init__.py
         ├── conftest.py        # Fixtures pytest (base SQLite :memory:)
