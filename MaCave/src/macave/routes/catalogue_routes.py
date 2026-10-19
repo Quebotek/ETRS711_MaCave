@@ -5,10 +5,10 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
-from flask import Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
 
-from macave.services import stock_service, vinofyi_service
+from macave.services import stock_service
 
 # Configuration upload
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "..", "static", "uploads", "vins")
@@ -185,49 +185,3 @@ def ajouter_vin():
 
     return render_template("catalogue/ajouter_vin.html")
 
-
-@bp.route("/vins/recherche-vinofyi")
-def recherche_vinofyi():
-    """Recherche AJAX de vins dans VinoFYI."""
-    query = request.args.get("q", "").strip()
-    if len(query) < 2:
-        return jsonify({"results": []})
-
-    results = vinofyi_service.search_wines(query)
-    return jsonify({"results": results})
-
-
-@bp.route("/vins/detail-vinofyi/<slug>")
-def detail_vinofyi(slug):
-    """Récupère le détail d'un vin VinoFYI pour pré-remplissage."""
-    wine_data = vinofyi_service.get_wine_detail(slug)
-    if wine_data is None:
-        return jsonify({"error": "Vin non trouvé"}), 404
-
-    mapped = vinofyi_service.map_vinofyi_to_model(wine_data)
-    return jsonify(mapped)
-
-
-@bp.route("/vins/styles-vinofyi")
-def styles_vinofyi():
-    """Liste les styles de vin VinoFYI pour l'assistant."""
-    styles = vinofyi_service.get_styles()
-    return jsonify({"styles": styles})
-
-
-@bp.route("/vins/recherche-cepages")
-def recherche_cepages():
-    """Recherche AJAX de cépages dans VinoFYI."""
-    query = request.args.get("q", "").strip()
-    if len(query) < 2:
-        return jsonify({"results": []})
-
-    results = vinofyi_service.search_grapes(query)
-    return jsonify({"results": results})
-
-
-@bp.route("/vins/accords-style/<slug>")
-def accords_style(slug):
-    """Récupère les accords mets-vins et infos d'un style."""
-    accords = vinofyi_service.get_style_accords(slug)
-    return jsonify(accords)
