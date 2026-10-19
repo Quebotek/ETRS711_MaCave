@@ -471,7 +471,11 @@ function displayCepages(results) {
   
   let html = '<ul class="cepage-list">';
   results.slice(0, 10).forEach(grape => {
-    const colorIcon = grape.color === 'red' ? '🔴' : grape.color === 'white' ? '⚪' : '🍇';
+    let colorIcon;
+    if (grape.color_fr === 'rouge') colorIcon = '🔴';
+    else if (grape.color_fr === 'blanc') colorIcon = '⚪';
+    else if (grape.color_fr === 'rosé') colorIcon = '🌸';
+    else colorIcon = '🍇';
     html += `
       <li class="cepage-item" data-slug="${grape.slug}" data-name="${escapeHtml(grape.name)}">
         <span class="cepage-icon">${colorIcon}</span>
