@@ -36,10 +36,10 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
   * Modification restreinte à l'auteur de l'évaluation[cite: 4].
 * **Tableau de bord personnel :** Nombre de bouteilles, nombre de références distinctes, occupation globale et valeur totale financière du stock (avec gestion explicite sans étagère pour éviter la division par zéro)[cite: 4].
 * **🆕 Interface web enrichie :**
-  * **Inventaire visuel** avec cartes de vins, photos et filtres (recherche, type, région).
-  * **Fiches de vins détaillées** avec notes communautaires en évidence et toutes les évaluations.
+  * **Inventaire visuel** avec cartes de vins, **photos** (upload ou URL) et filtres (recherche, type, région).
+  * **Fiches de vins détaillées** avec notes communautaires en évidence, **conseils & accords mets-vins**, et toutes les évaluations.
   * **Système de notation complet** : saisie de notes 0-20, commentaires de dégustation, modification de ses propres évaluations.
-  * **Catalogue amélioré** avec affichage des notes moyennes et nombre d'évaluations.
+  * **Catalogue amélioré** avec affichage des notes moyennes, nombre d'évaluations et gestion des images.
 
 ---
 
@@ -56,6 +56,7 @@ Une nouvelle interface web complète a été ajoutée pour faciliter la gestion 
 
 ### Fiche de Détail d'un Vin (`/inventaire/vin/<id>`)
 * **Note communautaire en évidence** avec nombre d'évaluations
+* **Conseils & accords mets-vins** selon le type de vin (7 types couverts)
 * **Liste de vos bouteilles** avec statut (en stock / archivées)
 * **Toutes les évaluations** de la communauté avec commentaires
 * **Votre évaluation personnelle** modifiable
@@ -106,7 +107,8 @@ ETRS711_MaCave/
     │       ├── services/      # Logique métier et transactions (hors HTTP)
     │       │   ├── __init__.py
     │       │   ├── auth_service.py
-    │       │   └── stock_service.py
+    │       │   ├── stock_service.py
+    │       │   └── vinofyi_service.py
     │       ├── routes/        # Contrôleurs web Flask (blueprints)
     │       │   ├── __init__.py
     │       │   ├── auth_routes.py
@@ -440,8 +442,8 @@ Le script `seed.py` initialise automatiquement deux comptes pour vérifier le co
 
 | Utilisateur | Identifiant | Mot de passe | Données de départ |
 | :--- | :--- | :--- | :--- |
-| **Alice** | `alice` | `password123` | Étagères « Bordeaux » (cap. 10) et « Bourgogne » (cap. 6), 5 bouteilles en stock, 1 bouteille archivée (note 16/20)[cite: 6]. |
-| **Bob** | `bob` | `password123` | Étagère « Cave Principale » (cap. 12), exemplaires du même vin qu'Alice avec évaluation (note 14/20)[cite: 6]. |
+| **Alice** | `alice` | `password123` | Étagères « Bordeaux » (cap. 10) et « Bourgogne » (cap. 6), 5 × Montelena + 3 × Margaux en stock, 1 bouteille archivée (note 16/20)[cite: 6]. |
+| **Bob** | `bob` | `password123` | Étagère « Cave Principale » (cap. 12), 2 × Montelena + 1 × Margaux en stock, 1 bouteille archivée (note 14/20)[cite: 6]. |
 
 * **Moyenne partagée :** Sur la référence *Château Montelena*, la note communautaire affiche `15.0 / 20`[cite: 3, 4, 6].
 * **Isolation :** Connecté en tant que Bob, le stock et les étagères d'Alice restent inaccessibles par navigation ou accès direct d'URL[cite: 2, 6].
@@ -450,10 +452,9 @@ Le script `seed.py` initialise automatiquement deux comptes pour vérifier le co
 
 ## Limites et perspectives
 
-* **Photos des étiquettes :** Gérées par URL externe pour ne pas alourdir le dépôt Git.
-* **✅ Interface enrichie :** Inventaire visuel avec filtres et système de notation complet maintenant implémentés.
+* **Photos des vins :** Gestion des images via **upload fichier** (JPG/PNG/GIF/WebP, max 5 Mo) ou **URL externe**.
+* **✅ Interface enrichie :** Inventaire visuel avec filtres, système de notation complet, conseils & accords mets-vins.
 * **Perspectives :** 
   * Export CSV/PDF de l'inventaire personnel
-  * Filtres avancés par accords mets-vins
   * Statistiques personnelles de dégustation
   * Comparaison de vos notes avec la moyenne communautaire
