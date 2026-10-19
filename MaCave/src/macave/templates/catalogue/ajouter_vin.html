@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Ajouter un vin — MaCave{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>🍇 Ajouter une nouvelle référence de vin</h2>
+  <p class="subtitle">Renseignez les caractéristiques du vin pour l'ajouter au catalogue communautaire.</p>
+
+  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}">
+    <div class="grid-2">
+      <div>
+        <label for="domaine">Domaine *</label>
+        <input type="text" id="domaine" name="domaine" value="{{ domaine or '' }}" 
+               placeholder="Ex: Château Margaux" required>
+      </div>
+      <div>
+        <label for="cuvee">Cuvée *</label>
+        <input type="text" id="cuvee" name="cuvee" value="{{ cuvee or '' }}" 
+               placeholder="Ex: Grand Vin" required>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label for="type_vin">Type de vin *</label>
+        <select id="type_vin" name="type_vin" required>
+          <option value="">-- Sélectionnez --</option>
+          <option value="Rouge" {% if type_vin == 'Rouge' %}selected{% endif %}>Rouge</option>
+          <option value="Blanc" {% if type_vin == 'Blanc' %}selected{% endif %}>Blanc</option>
+          <option value="Rosé" {% if type_vin == 'Rosé' %}selected{% endif %}>Rosé</option>
+          <option value="Champagne" {% if type_vin == 'Champagne' %}selected{% endif %}>Champagne</option>
+          <option value="Pétillant" {% if type_vin == 'Pétillant' %}selected{% endif %}>Pétillant</option>
+          <option value="Liquoreux" {% if type_vin == 'Liquoreux' %}selected{% endif %}>Liquoreux</option>
+        </select>
+      </div>
+      <div>
+        <label for="millesime">Millésime *</label>
+        <input type="number" id="millesime" name="millesime" value="{{ millesime or '' }}" 
+               placeholder="Ex: 2015" min="1800" max="2100" required>
+      </div>
+    </div>
+
+    <div>
+      <label for="region">Région *</label>
+      <input type="text" id="region" name="region" value="{{ region or '' }}" 
+             placeholder="Ex: Bordeaux, Bourgogne, Napa Valley..." required>
+    </div>
+
+    <div>
+      <label for="photo_url">URL de la photo (optionnel)</label>
+      <input type="url" id="photo_url" name="photo_url" value="{{ photo_url or '' }}" 
+             placeholder="https://example.com/photo.jpg">
+    </div>
+
+    <div>
+      <label for="description">Description (optionnel)</label>
+      <textarea id="description" name="description" rows="4" 
+                placeholder="Notes de dégustation, accord mets-vins, caractéristiques du terroir...">{{ description or '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit">✅ Ajouter au catalogue</button>
+      <a href="{{ url_for('catalogue.vins') }}" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
+</div>
+
+<style>
+  .subtitle {
+    color: #666;
+    margin-top: -0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .form-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+  .btn-secondary {
+    background: #6c757d;
+  }
+  .btn-secondary:hover {
+    background: #5a6268;
+  }
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+  }
+</style>
+{% endblock %}

@@ -30,7 +30,10 @@
 </div>
 
 <div class="card">
-  <h3>Mes étagères</h3>
+  <div class="header-with-action">
+    <h3>Mes étagères</h3>
+    <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">➕ Ajouter des bouteilles</a>
+  </div>
   {% if etageres %}
     <table>
       <thead>
@@ -47,9 +50,25 @@
         {% endfor %}
       </tbody>
     </table>
-    <a href="{{ url_for('cave.etageres') }}" class="btn" style="margin-top: 1rem;">Gérer les étagères</a>
+    <div style="margin-top: 1rem;">
+      <a href="{{ url_for('cave.etageres') }}" class="btn">Gérer les étagères</a>
+    </div>
   {% else %}
     <p>Aucune étagère. <a href="{{ url_for('cave.etageres') }}">En créer une</a>.</p>
   {% endif %}
 </div>
+
+<style>
+.header-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.header-with-action h3 {
+  margin: 0;
+}
+</style>
 {% endblock %}
