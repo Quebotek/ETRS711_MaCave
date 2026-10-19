@@ -246,7 +246,7 @@ function selectWine(slug) {
       const infoDiv = document.getElementById('vinofyi-info');
       const ratingP = document.getElementById('vinofyi-rating');
       if (data.note_moyenne && data.nombre_notes) {
-        ratingP.innerHTML = `⭐ Note VinoFYI : <strong>${data.note_moyenne}/5</strong> (${data.nombre_notes} avis)`;
+        ratingP.innerHTML = `⭐ Note VinoFYI : <strong>${data.note_moyenne}/20</strong> (convertie de VinoFYI, ${data.nombre_notes} avis)`;
         infoDiv.style.display = 'block';
       }
       

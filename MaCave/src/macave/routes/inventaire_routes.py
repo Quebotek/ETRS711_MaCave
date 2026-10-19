@@ -208,8 +208,12 @@ def detail_vin(vin_id):
             # Prendre le premier résultat
             wine_detail = vinofyi_service.get_wine_detail(results[0]['slug'])
             if wine_detail:
+                note_vinofyi_20 = vinofyi_service.convertir_note_sur_20(
+                    wine_detail.get("avg_rating")
+                )
                 vinofyi_info = {
-                    "note_vinofyi": wine_detail.get("avg_rating"),
+                    "note_vinofyi": note_vinofyi_20,
+                    "note_vinofyi_brute": wine_detail.get("avg_rating"),
                     "nb_avis": wine_detail.get("rating_count"),
                     "corps": wine_detail.get("body"),
                     "acidite": wine_detail.get("acidity"),

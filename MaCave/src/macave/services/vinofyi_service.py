@@ -236,6 +236,26 @@ def get_grape_detail(slug: str) -> dict[str, Any] | None:
     return _translate_grape(data)
 
 
+def convertir_note_sur_20(note_sur_5: str | float | None) -> float | None:
+    """Convertit une note VinoFYI (/5) en note MaCave (/20).
+
+    Args:
+        note_sur_5: Note sur 5 (ex: "4.43" ou 4.43).
+
+    Returns:
+        Note sur 20 arrondie à 1 décimale, ou None si invalide.
+    """
+    if note_sur_5 is None or note_sur_5 == "":
+        return None
+    try:
+        n = float(note_sur_5)
+        if n < 0 or n > 5:
+            return None
+        return round(n * 4, 1)
+    except (ValueError, TypeError):
+        return None
+
+
 def map_vinofyi_to_model(wine_data: dict[str, Any]) -> dict[str, Any]:
     """Convertit les données VinoFYI en champs compatibles avec le modèle Vin.
 
@@ -268,7 +288,8 @@ def map_vinofyi_to_model(wine_data: dict[str, Any]) -> dict[str, Any]:
         "type_vin": wine_type,
         "region": f"{region}, {country}" if country and region != country else region,
         "description": description,
-        "note_moyenne": wine_data.get("avg_rating", ""),
+        "note_moyenne": convertir_note_sur_20(wine_data.get("avg_rating")),
+        "note_vinofyi_brute": wine_data.get("avg_rating", ""),
         "nombre_notes": wine_data.get("rating_count", 0),
     }
 

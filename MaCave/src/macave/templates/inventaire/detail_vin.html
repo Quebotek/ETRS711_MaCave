@@ -36,7 +36,7 @@
           {% if vinofyi_info.note_vinofyi %}
           <div class="vinofyi-item">
             <span class="vinofyi-label">⭐ Note</span>
-            <span class="vinofyi-value">{{ vinofyi_info.note_vinofyi }}/5 ({{ vinofyi_info.nb_avis or 0 }} avis)</span>
+            <span class="vinofyi-value">{{ vinofyi_info.note_vinofyi }}/20 <small>({{ vinofyi_info.note_vinofyi_brute }}/5 sur VinoFYI)</small> — {{ vinofyi_info.nb_avis or 0 }} avis</span>
           </div>
           {% endif %}
           {% if vinofyi_info.corps %}
