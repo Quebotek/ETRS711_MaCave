@@ -19,9 +19,8 @@
       <p class="cuvee-large">{{ vin.cuvee }}</p>
 
       <div class="note-moyenne-large">
-        <span class="note-badge-interne">INTERNE</span>
         <span class="note-chiffre">{{ note_moyenne }}</span>
-        <span class="note-text">Note communautaire MaCave</span>
+        <span class="note-text">Note communautaire</span>
         <span class="note-count">{{ evaluations|length }} évaluation{{ 's' if evaluations|length > 1 else '' }}</span>
       </div>
 
@@ -94,9 +93,9 @@
     {% endif %}
   </div>
 
-  <!-- Commentaires internes MaCave -->
+  <!-- Évaluations communautaires -->
   <div class="card">
-    <h3>💬 Commentaires internes MaCave <span class="badge-interne">INTERNE</span></h3>
+    <h3>💬 Évaluations communautaires</h3>
 
     {% if evaluations %}
     <div class="evaluations-list">
@@ -312,41 +311,6 @@
 .eval-author { font-weight: 600; }
 .eval-date { color: #666; font-size: 0.9rem; }
 .eval-commentaire { margin: 0; line-height: 1.6; color: #333; }
-
-/* ---------- Badges Interne/Externe ---------- */
-.note-badge-interne {
-  display: inline-block;
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.4);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-.note-badge-externe {
-  display: inline-block;
-  background: #1565c0;
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  letter-spacing: 0.05em;
-}
-.badge-interne {
-  display: inline-block;
-  background: var(--primary);
-  color: white;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.65rem;
-  font-weight: bold;
-  vertical-align: middle;
-  margin-left: 0.5rem;
-}
 
 .ma-notation { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border); }
 .ma-notation h4 { color: var(--primary); margin-bottom: 1rem; }
