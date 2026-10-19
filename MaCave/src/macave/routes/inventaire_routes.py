@@ -217,10 +217,6 @@ def detail_vin(vin_id):
                     "note_vinofyi": note_vinofyi_20,
                     "note_vinofyi_brute": wine_detail.get("avg_rating"),
                     "nb_avis": wine_detail.get("rating_count"),
-                    "corps": wine_detail.get("body"),
-                    "acidite": wine_detail.get("acidity"),
-                    "elaboration": wine_detail.get("elaborate"),
-                    "alcool": wine_detail.get("abv"),
                 }
     except Exception as e:
         vinofyi_info["erreur"] = str(e)

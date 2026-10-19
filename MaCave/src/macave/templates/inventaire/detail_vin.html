@@ -33,7 +33,7 @@
       {% if vinofyi_info and vinofyi_info.trouve %}
       <div class="vinofyi-detail-card">
         <div class="vinofyi-header">
-          <h4>📊 Avis Externes VinoFYI</h4>
+          <h4>⭐ Avis Externes VinoFYI</h4>
           <span class="note-badge-externe">EXTERNE</span>
         </div>
         <div class="vinofyi-grid">
@@ -43,36 +43,12 @@
             <span class="vinofyi-value">{{ vinofyi_info.note_vinofyi }}/20 <small>({{ vinofyi_info.note_vinofyi_brute }}/5 sur VinoFYI)</small> — {{ vinofyi_info.nb_avis or 0 }} avis</span>
           </div>
           {% endif %}
-          {% if vinofyi_info.corps %}
-          <div class="vinofyi-item">
-            <span class="vinofyi-label">🍷 Corps</span>
-            <span class="vinofyi-value">{{ vinofyi_info.corps }}</span>
-          </div>
-          {% endif %}
-          {% if vinofyi_info.acidite %}
-          <div class="vinofyi-item">
-            <span class="vinofyi-label">🍋 Acidité</span>
-            <span class="vinofyi-value">{{ vinofyi_info.acidite }}</span>
-          </div>
-          {% endif %}
-          {% if vinofyi_info.alcool %}
-          <div class="vinofyi-item">
-            <span class="vinofyi-label">🌡️ Alcool</span>
-            <span class="vinofyi-value">{{ vinofyi_info.alcool }}%</span>
-          </div>
-          {% endif %}
-          {% if vinofyi_info.elaboration %}
-          <div class="vinofyi-item">
-            <span class="vinofyi-label">🛠️ Élaboration</span>
-            <span class="vinofyi-value">{{ vinofyi_info.elaboration }}</span>
-          </div>
-          {% endif %}
         </div>
       </div>
       {% else %}
       <div class="vinofyi-detail-card vinofyi-empty">
         <div class="vinofyi-header">
-          <h4>📊 Avis Externes VinoFYI</h4>
+          <h4>⭐ Avis Externes VinoFYI</h4>
           <span class="note-badge-externe">EXTERNE</span>
         </div>
         <p class="vinofyi-empty-text">Aucun avis externe trouvé pour ce vin.</p>
@@ -81,6 +57,13 @@
         {% endif %}
       </div>
       {% endif %}
+
+      <!-- ═══ Conseils & Accords selon le type ═══ -->
+      <div class="conseils-card">
+        <h4>🍽️ Conseils & Accords</h4>
+        <p class="conseils-description" id="conseils-desc"></p>
+        <div class="conseils-list" id="conseils-list"></div>
+      </div>
 
       {% if vin.description %}
       <div class="vin-description">
@@ -335,6 +318,37 @@
   font-size: 0.95rem;
 }
 
+/* ---------- Conseils & Accords ---------- */
+.conseils-card {
+  background: linear-gradient(135deg, #fff8f0, #fff3e0);
+  border-left: 4px solid #f9a825;
+  padding: 1.25rem;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+.conseils-card h4 {
+  margin: 0 0 0.75rem 0;
+  color: #e65100;
+}
+.conseils-description {
+  color: #666;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+.conseils-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.conseil-tag {
+  background: white;
+  border: 1px solid #f9a825;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #e65100;
+}
+
 /* ---------- VinoFYI état vide ---------- */
 .vinofyi-empty {
   background: linear-gradient(135deg, #f5f5f5, #eeeeee);
@@ -485,6 +499,61 @@
 </style>
 
 <script>
+// ═══ Conseils & Accords selon le type de vin ═══
+const conseilsParType = {
+  'Rouge': {
+    description: 'Vins rouges aux tanins et fruits rouges/noirs',
+    accords: ['🥩 Viande rouge grillée', '🧀 Fromage affiné', '🍖 Gibier', '🍝 Plat en sauce']
+  },
+  'Blanc': {
+    description: 'Vins blancs frais et fruités',
+    accords: ['🐟 Poisson / fruits de mer', '🦪 Huîtres', '🥗 Salade', '🐔 Volaille']
+  },
+  'Rosé': {
+    description: 'Vins rosés légers et frais',
+    accords: ['🥗 Salade méditerranéenne', '🦐 Fruits de mer', '🍕 Pizza', '🌮 Tapas']
+  },
+  'Champagne': {
+    description: 'Bulles élégantes et festives',
+    accords: ['🦪 Huîtres', '🍤 Crevettes', '🧀 Fromage blanc', '🍓 Fruits rouges']
+  },
+  'Effervescent': {
+    description: 'Vins pétillants festifs',
+    accords: ['🍤 Apéritif', '🥗 Entrées légères', '🍰 Dessert fruité']
+  },
+  'Doux': {
+    description: 'Vins sucrés et onctueux',
+    accords: ['🍰 Dessert au chocolat', '🧀 Foie gras', '🫐 Tarte aux fruits', '🧀 Roquefort']
+  },
+  'Fortifié': {
+    description: 'Vins riches et alcoolisés',
+    accords: ['🍫 Chocolat noir', '🧀 Fromage bleu', '🥜 Noix / fruits secs', '🚬 Cigare']
+  }
+};
+
+function afficherConseils() {
+  const typeVin = '{{ vin.type_vin | safe }}';
+  const descEl = document.getElementById('conseils-desc');
+  const listEl = document.getElementById('conseils-list');
+  
+  if (!typeVin || !conseilsParType[typeVin]) {
+    document.querySelector('.conseils-card').style.display = 'none';
+    return;
+  }
+  
+  const data = conseilsParType[typeVin];
+  descEl.textContent = data.description;
+  
+  let html = '';
+  data.accords.forEach(accord => {
+    html += `<span class="conseil-tag">${accord}</span>`;
+  });
+  listEl.innerHTML = html;
+}
+
+// Exécuter au chargement
+document.addEventListener('DOMContentLoaded', afficherConseils);
+
 let currentBouteilleId = null;
 
 function showDeplacerModal(bouteilleId) {
