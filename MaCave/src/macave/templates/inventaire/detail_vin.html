@@ -30,34 +30,6 @@
         <span class="tag">🍇 {{ vin.type_vin }}</span>
       </div>
 
-      {% if vinofyi_info and vinofyi_info.trouve %}
-      <div class="vinofyi-detail-card">
-        <div class="vinofyi-header">
-          <h4>⭐ Avis Externes VinoFYI</h4>
-          <span class="note-badge-externe">EXTERNE</span>
-        </div>
-        <div class="vinofyi-grid">
-          {% if vinofyi_info.note_vinofyi %}
-          <div class="vinofyi-item">
-            <span class="vinofyi-label">⭐ Note</span>
-            <span class="vinofyi-value">{{ vinofyi_info.note_vinofyi }}/20 <small>({{ vinofyi_info.note_vinofyi_brute }}/5 sur VinoFYI)</small> — {{ vinofyi_info.nb_avis or 0 }} avis</span>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-      {% else %}
-      <div class="vinofyi-detail-card vinofyi-empty">
-        <div class="vinofyi-header">
-          <h4>⭐ Avis Externes VinoFYI</h4>
-          <span class="note-badge-externe">EXTERNE</span>
-        </div>
-        <p class="vinofyi-empty-text">Aucun avis externe trouvé pour ce vin.</p>
-        {% if vinofyi_info.erreur %}
-        <p class="vinofyi-error">Erreur: {{ vinofyi_info.erreur }}</p>
-        {% endif %}
-      </div>
-      {% endif %}
-
       <!-- ═══ Conseils & Accords selon le type ═══ -->
       <div class="conseils-card">
         <h4>🍽️ Conseils & Accords</h4>
@@ -282,42 +254,6 @@
 .vin-description { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
 .vin-description h4 { margin: 0 0 0.5rem 0; color: var(--primary); }
 
-/* ---------- VinoFYI Detail Card ---------- */
-.vinofyi-detail-card {
-  background: linear-gradient(135deg, #f0f7ff, #e3f2fd);
-  border-left: 4px solid #1565c0;
-  padding: 1.25rem;
-  border-radius: 8px;
-  margin-top: 1rem;
-}
-.vinofyi-detail-card h4 {
-  margin: 0 0 1rem 0;
-  color: #1565c0;
-  font-size: 1.1rem;
-}
-.vinofyi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
-}
-.vinofyi-item {
-  background: white;
-  padding: 0.75rem;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-}
-.vinofyi-label {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0.25rem;
-}
-.vinofyi-value {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.95rem;
-}
-
 /* ---------- Conseils & Accords ---------- */
 .conseils-card {
   background: linear-gradient(135deg, #fff8f0, #fff3e0);
@@ -347,26 +283,6 @@
   border-radius: 20px;
   font-size: 0.9rem;
   color: #e65100;
-}
-
-/* ---------- VinoFYI état vide ---------- */
-.vinofyi-empty {
-  background: linear-gradient(135deg, #f5f5f5, #eeeeee);
-  border-left-color: #999;
-}
-.vinofyi-empty h4 {
-  color: #666;
-}
-.vinofyi-empty-text {
-  color: #888;
-  text-align: center;
-  margin: 1rem 0;
-  font-style: italic;
-}
-.vinofyi-error {
-  color: var(--danger);
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
 }
 
 /* ---------- Table bouteilles ---------- */
@@ -429,15 +345,6 @@
   font-weight: bold;
   vertical-align: middle;
   margin-left: 0.5rem;
-}
-.vinofyi-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-.vinofyi-header h4 {
-  margin: 0;
 }
 
 .ma-notation { margin-top: 2rem; padding-top: 1.5rem; border-top: 2px solid var(--border); }

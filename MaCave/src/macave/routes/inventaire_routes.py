@@ -197,30 +197,6 @@ def detail_vin(vin_id):
             "_occupation": r["occ"]
         })
 
-    # ─── Recherche VinoFYI pour enrichir la fiche ───
-    vinofyi_info = {"trouve": False}
-
-    try:
-        from macave.services import vinofyi_service
-        query = f"{vin['domaine']} {vin['cuvee']}"
-        results = vinofyi_service.search_wines(query)
-        if results:
-            wine_detail = vinofyi_service.get_wine_detail(results[0]['slug'])
-            if wine_detail:
-                note_vinofyi_20 = vinofyi_service.convertir_note_sur_20(
-                    wine_detail.get("avg_rating")
-                )
-                vinofyi_info = {
-                    "trouve": True,
-                    "query": query,
-                    "nom": results[0].get("name", ""),
-                    "note_vinofyi": note_vinofyi_20,
-                    "note_vinofyi_brute": wine_detail.get("avg_rating"),
-                    "nb_avis": wine_detail.get("rating_count"),
-                }
-    except Exception as e:
-        vinofyi_info["erreur"] = str(e)
-
     return render_template(
         "inventaire/detail_vin.html",
         vin=vin,
@@ -229,7 +205,6 @@ def detail_vin(vin_id):
         note_moyenne=note_affichage,
         ma_evaluation=my_eval,
         etageres=etageres,
-        vinofyi_info=vinofyi_info,
     )
 
 
