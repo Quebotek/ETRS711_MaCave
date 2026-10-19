@@ -22,6 +22,8 @@ from macave.models import (
     Etagere,
     Evaluation,
     StatutBouteille,
+    Utilisateur,
+    Vin,
 )
 
 # ---------------------------------------------------------------------------
@@ -159,3 +161,71 @@ class TestVin:
         evaluation_16.modifier(18, "Encore meilleur en re-bouchonné")
         assert evaluation_16.note == 18
         assert evaluation_16.commentaire == "Encore meilleur en re-bouchonné"
+
+
+# ---------------------------------------------------------------------------
+# Tests complémentaires
+# ---------------------------------------------------------------------------
+
+
+class TestUtilisateur:
+    """Tests du modèle Utilisateur."""
+
+    def test_verifier_mot_de_passe(self):
+        """La méthode verifier_mot_de_passe doit valider correctement un hash werkzeug."""
+        from werkzeug.security import generate_password_hash
+        mdp = "mon_super_mdp"
+        hash_mdp = generate_password_hash(mdp, method="pbkdf2:sha256")
+        user = Utilisateur(id=1, username="test", password_hash=hash_mdp)
+        assert user.verifier_mot_de_passe(mdp) is True
+        assert user.verifier_mot_de_passe("mauvais_mdp") is False
+
+    def test_verifier_mot_de_passe_vide(self):
+        """Un mot de passe vide doit être rejeté."""
+        from werkzeug.security import generate_password_hash
+        hash_mdp = generate_password_hash("correct", method="pbkdf2:sha256")
+        user = Utilisateur(id=1, username="test", password_hash=hash_mdp)
+        assert user.verifier_mot_de_passe("") is False
+
+
+class TestConfidentialite:
+    """R1 : les données privées sont isolées entre utilisateurs."""
+
+    def test_cave_isolee_par_utilisateur(self):
+        """Chaque utilisateur a sa propre cave indépendante."""
+        cave_alice = Cave(id=1, utilisateur_id=1)
+        cave_bob = Cave(id=2, utilisateur_id=2)
+
+        # Alice a une étagère avec une bouteille
+        etagere_alice = Etagere(id=1, nom="Bordeaux", capacite_max=10)
+        b_alice = Bouteille(id=1, vin_id=1, cave_id=1)
+        etagere_alice.ajouter_bouteille(b_alice)
+        cave_alice.etageres.append(etagere_alice)
+
+        # Bob a une étagère différente
+        etagere_bob = Etagere(id=2, nom="Bourgogne", capacite_max=5)
+        b_bob = Bouteille(id=2, vin_id=2, cave_id=2)
+        etagere_bob.ajouter_bouteille(b_bob)
+        cave_bob.etageres.append(etagere_bob)
+
+        # Vérifier l'isolation
+        assert len(cave_alice.etageres) == 1
+        assert len(cave_bob.etageres) == 1
+        assert cave_alice.etageres[0].nom == "Bordeaux"
+        assert cave_bob.etageres[0].nom == "Bourgogne"
+        assert len(cave_alice.etageres[0].bouteilles) == 1
+        assert len(cave_bob.etageres[0].bouteilles) == 1
+        # Bob ne peut pas accéder aux bouteilles d'Alice
+        assert b_alice not in cave_bob.etageres[0].bouteilles
+
+    def test_prix_achat_prive(self):
+        """Le prix d'achat est stocké dans la bouteille privée, pas dans le vin public."""
+        vin = Vin(id=1, domaine="Test", type_vin="Rouge")
+        b1 = Bouteille(id=1, vin_id=1, prix_achat=50.0, cave_id=1)
+        b2 = Bouteille(id=2, vin_id=1, prix_achat=45.0, cave_id=2)
+
+        # Même vin, prix différents selon l'acheteur
+        assert vin.id == b1.vin_id == b2.vin_id
+        assert b1.prix_achat != b2.prix_achat
+        assert b1.prix_achat == 50.0
+        assert b2.prix_achat == 45.0

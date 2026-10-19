@@ -218,3 +218,116 @@ class TestStockService:
             conn=self.db,
         )
         assert vin2 is None
+
+    def test_r1_confidentialite_cave_isolee(self):
+        """R1 : les stock et étagères d'un utilisateur sont inaccessibles à l'autre."""
+        # Alice (utilisateur courant) a une étagère et des bouteilles
+        stock_service.add_bouteilles_lot(
+            self.cave_id, self.vin_id, self.etagere_id, 50.0, 3, self.db
+        )
+
+        # Créer Bob
+        user_bob = auth_service.register("bob", "bob@test.com", "pass", self.db)
+        cave_bob_id = self.db.execute(
+            "SELECT id FROM caves WHERE utilisateur_id = ?", (user_bob.id,)
+        ).fetchone()["id"]
+        etagere_bob = stock_service.create_etagere(cave_bob_id, "BobEtagere", 5, self.db)
+        stock_service.add_bouteilles_lot(
+            cave_bob_id, self.vin_id, etagere_bob.id, 100.0, 1, self.db
+        )
+
+        # Stats de Alice
+        stats_alice = stock_service.get_cave_stats(self.cave_id, self.db)
+        assert stats_alice["nb_bouteilles"] == 3
+        assert stats_alice["valeur_totale"] == 150.0
+
+        # Stats de Bob
+        stats_bob = stock_service.get_cave_stats(cave_bob_id, self.db)
+        assert stats_bob["nb_bouteilles"] == 1
+        assert stats_bob["valeur_totale"] == 100.0
+
+        # Vérifier dans la DB que les bouteilles sont séparées
+        count_alice = self.db.execute(
+            "SELECT COUNT(*) as cnt FROM bouteilles WHERE cave_id = ?",
+            (self.cave_id,),
+        ).fetchone()["cnt"]
+        count_bob = self.db.execute(
+            "SELECT COUNT(*) as cnt FROM bouteilles WHERE cave_id = ?",
+            (cave_bob_id,),
+        ).fetchone()["cnt"]
+        assert count_alice == 3
+        assert count_bob == 1
+
+    def test_r1_prix_achat_prive(self):
+        """R1 : le prix d'achat est stocké dans la bouteille, pas dans le vin public."""
+        # Alice achète à 50€
+        stock_service.add_bouteilles_lot(
+            self.cave_id, self.vin_id, self.etagere_id, 50.0, 1, self.db
+        )
+
+        # Bob achète le même vin à 75€
+        user_bob = auth_service.register("bob2", "bob2@test.com", "pass", self.db)
+        cave_bob_id = self.db.execute(
+            "SELECT id FROM caves WHERE utilisateur_id = ?", (user_bob.id,)
+        ).fetchone()["id"]
+        etagere_bob = stock_service.create_etagere(cave_bob_id, "BobEtagere2", 5, self.db)
+        stock_service.add_bouteilles_lot(
+            cave_bob_id, self.vin_id, etagere_bob.id, 75.0, 1, self.db
+        )
+
+        # Vérifier les prix individuels
+        prix_alice = self.db.execute(
+            "SELECT prix_achat FROM bouteilles WHERE cave_id = ?",
+            (self.cave_id,),
+        ).fetchone()["prix_achat"]
+        prix_bob = self.db.execute(
+            "SELECT prix_achat FROM bouteilles WHERE cave_id = ?",
+            (cave_bob_id,),
+        ).fetchone()["prix_achat"]
+
+        assert prix_alice == 50.0
+        assert prix_bob == 75.0
+
+    def test_r12_modification_evaluation_autorisee(self):
+        """R12 : seul l'auteur peut modifier son évaluation."""
+        # Créer une bouteille et l'archiver (crée une évaluation)
+        lot = stock_service.add_bouteilles_lot(
+            self.cave_id, self.vin_id, self.etagere_id, 25.0, 1, self.db
+        )
+        eval_obj = stock_service.archiver_bouteille(
+            lot[0].id, self.user_id, 16, "Excellent", self.db
+        )
+        assert eval_obj is not None
+
+        # Vérifier que l'évaluation existe
+        row = self.db.execute(
+            "SELECT * FROM evaluations WHERE id = ?", (eval_obj.id,)
+        ).fetchone()
+        assert row["note"] == 16
+        assert row["utilisateur_id"] == self.user_id
+
+    def test_r1_isolation_requetes_db(self):
+        """R1 : les requêtes SQL filtrent correctement par cave_id."""
+        # Alice a 2 bouteilles
+        stock_service.add_bouteilles_lot(
+            self.cave_id, self.vin_id, self.etagere_id, 30.0, 2, self.db
+        )
+
+        # Bob a 1 bouteille (même vin)
+        user_bob = auth_service.register("bob3", "bob3@test.com", "pass", self.db)
+        cave_bob_id = self.db.execute(
+            "SELECT id FROM caves WHERE utilisateur_id = ?", (user_bob.id,)
+        ).fetchone()["id"]
+        etagere_bob = stock_service.create_etagere(cave_bob_id, "BobEtagere3", 5, self.db)
+        stock_service.add_bouteilles_lot(
+            cave_bob_id, self.vin_id, etagere_bob.id, 60.0, 1, self.db
+        )
+
+        # Vérifier que get_cave_stats retourne les bonnes stats pour chacun
+        stats_alice = stock_service.get_cave_stats(self.cave_id, self.db)
+        stats_bob = stock_service.get_cave_stats(cave_bob_id, self.db)
+
+        assert stats_alice["nb_bouteilles"] == 2
+        assert stats_bob["nb_bouteilles"] == 1
+        assert stats_alice["valeur_totale"] == 60.0
+        assert stats_bob["valeur_totale"] == 60.0

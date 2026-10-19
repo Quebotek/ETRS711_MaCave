@@ -24,8 +24,8 @@ class Utilisateur:
     def verifier_mot_de_passe(self, mdp: str) -> bool:
         """Vérifie un mot de passe en clair contre le hash stocké.
 
-        La vérification concrète sera assurée par werkzeug dans le service
-        d'authentification. Cette méthode permet de garder une interface
-        cohérente dans le modèle.
+        Returns:
+            True si le mot de passe correspond au hash, False sinon.
         """
-        raise NotImplementedError("La vérification de mot de passe est déléguée au AuthService.")
+        from werkzeug.security import check_password_hash
+        return check_password_hash(self.password_hash, mdp)
