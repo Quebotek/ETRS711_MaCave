@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from flask import Blueprint, flash, g, redirect, render_template, request, url_for
+from flask import Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
 
-from macave.services import stock_service
+from macave.services import stock_service, vinofyi_service
 
 bp = Blueprint("catalogue", __name__, url_prefix="/catalogue")
 
@@ -132,3 +132,25 @@ def ajouter_vin():
         return redirect(url_for("catalogue.vins"))
 
     return render_template("catalogue/ajouter_vin.html")
+
+
+@bp.route("/vins/recherche-vinofyi")
+def recherche_vinofyi():
+    """Recherche AJAX de vins dans VinoFYI."""
+    query = request.args.get("q", "").strip()
+    if len(query) < 2:
+        return jsonify({"results": []})
+
+    results = vinofyi_service.search_wines(query)
+    return jsonify({"results": results})
+
+
+@bp.route("/vins/detail-vinofyi/<slug>")
+def detail_vinofyi(slug):
+    """Récupère le détail d'un vin VinoFYI pour pré-remplissage."""
+    wine_data = vinofyi_service.get_wine_detail(slug)
+    if wine_data is None:
+        return jsonify({"error": "Vin non trouvé"}), 404
+
+    mapped = vinofyi_service.map_vinofyi_to_model(wine_data)
+    return jsonify(mapped)

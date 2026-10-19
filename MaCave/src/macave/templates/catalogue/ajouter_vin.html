@@ -3,9 +3,24 @@
 {% block content %}
 <div class="card">
   <h2>🍇 Ajouter une nouvelle référence de vin</h2>
-  <p class="subtitle">Renseignez les caractéristiques du vin pour l'ajouter au catalogue communautaire.</p>
+  <p class="subtitle">Recherchez un vin dans l'encyclopédie VinoFYI pour pré-remplir automatiquement, ou remplissez manuellement.</p>
 
-  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}">
+  <!-- ═══ Recherche VinoFYI ═══ -->
+  <div class="search-section">
+    <label for="search-vinofyi">🔍 Rechercher dans VinoFYI</label>
+    <input type="text" id="search-vinofyi" 
+           placeholder="Tapez le nom d'un vin (ex: Château Margaux, Chardonnay Bourgogne...)" 
+           autocomplete="off">
+    <div id="search-results" class="search-results"></div>
+    <div id="search-loading" class="search-loading" style="display:none;">
+      <span class="spinner"></span> Recherche en cours...
+    </div>
+  </div>
+
+  <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+
+  <!-- ═══ Formulaire ═══ -->
+  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin">
     <div class="grid-2">
       <div>
         <label for="domaine">Domaine *</label>
@@ -28,8 +43,9 @@
           <option value="Blanc" {% if type_vin == 'Blanc' %}selected{% endif %}>Blanc</option>
           <option value="Rosé" {% if type_vin == 'Rosé' %}selected{% endif %}>Rosé</option>
           <option value="Champagne" {% if type_vin == 'Champagne' %}selected{% endif %}>Champagne</option>
-          <option value="Pétillant" {% if type_vin == 'Pétillant' %}selected{% endif %}>Pétillant</option>
-          <option value="Liquoreux" {% if type_vin == 'Liquoreux' %}selected{% endif %}>Liquoreux</option>
+          <option value="Effervescent" {% if type_vin == 'Effervescent' %}selected{% endif %}>Effervescent</option>
+          <option value="Doux" {% if type_vin == 'Doux' %}selected{% endif %}>Doux / Liquoreux</option>
+          <option value="Fortifié" {% if type_vin == 'Fortifié' %}selected{% endif %}>Fortifié</option>
         </select>
       </div>
       <div>
@@ -57,6 +73,12 @@
                 placeholder="Notes de dégustation, accord mets-vins, caractéristiques du terroir...">{{ description or '' }}</textarea>
     </div>
 
+    <!-- Info VinoFYI si présente -->
+    <div id="vinofyi-info" class="vinofyi-info" style="display:none;">
+      <h4>📊 Informations VinoFYI</h4>
+      <p id="vinofyi-rating"></p>
+    </div>
+
     <div class="form-actions">
       <button type="submit">✅ Ajouter au catalogue</button>
       <a href="{{ url_for('catalogue.vins') }}" class="btn btn-secondary">Annuler</a>
@@ -64,12 +86,296 @@
   </form>
 </div>
 
+<script>
+// ═══════════════════════════════════════════════════════════════
+// Recherche VinoFYI avec debounce
+// ═══════════════════════════════════════════════════════════════
+
+let searchTimeout = null;
+const searchInput = document.getElementById('search-vinofyi');
+const resultsDiv = document.getElementById('search-results');
+const loadingDiv = document.getElementById('search-loading');
+
+searchInput.addEventListener('input', function() {
+  const query = this.value.trim();
+  
+  // Annuler la recherche précédente
+  if (searchTimeout) clearTimeout(searchTimeout);
+  
+  // Cacher les résultats si moins de 2 caractères
+  if (query.length < 2) {
+    resultsDiv.innerHTML = '';
+    resultsDiv.style.display = 'none';
+    return;
+  }
+  
+  // Debounce : attendre 400ms après la dernière frappe
+  searchTimeout = setTimeout(() => {
+    performSearch(query);
+  }, 400);
+});
+
+// Cacher les résultats quand on clique ailleurs
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.search-section')) {
+    resultsDiv.style.display = 'none';
+  }
+});
+
+function performSearch(query) {
+  loadingDiv.style.display = 'block';
+  resultsDiv.style.display = 'none';
+  
+  fetch(`/catalogue/vins/recherche-vinofyi?q=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      loadingDiv.style.display = 'none';
+      displayResults(data.results || []);
+    })
+    .catch(err => {
+      loadingDiv.style.display = 'none';
+      console.error('Erreur recherche VinoFYI:', err);
+    });
+}
+
+function displayResults(results) {
+  if (results.length === 0) {
+    resultsDiv.innerHTML = '<div class="no-results">Aucun vin trouvé. Essayez avec un autre nom.</div>';
+    resultsDiv.style.display = 'block';
+    return;
+  }
+  
+  let html = '<div class="results-header">Cliquez sur un résultat pour pré-remplir :</div>';
+  html += '<ul class="results-list">';
+  
+  results.slice(0, 8).forEach(wine => {
+    html += `
+      <li class="result-item" data-slug="${wine.slug}">
+        <div class="result-name">${escapeHtml(wine.name)}</div>
+        <div class="result-type">${wine.type || 'Vin'}</div>
+      </li>
+    `;
+  });
+  
+  html += '</ul>';
+  if (results.length > 8) {
+    html += `<div class="more-results">... et ${results.length - 8} autres résultats</div>`;
+  }
+  
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
+  
+  // Ajouter les événements de clic
+  document.querySelectorAll('.result-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const slug = this.dataset.slug;
+      selectWine(slug);
+    });
+  });
+}
+
+function selectWine(slug) {
+  resultsDiv.style.display = 'none';
+  searchInput.value = 'Chargement...';
+  
+  fetch(`/catalogue/vins/detail-vinofyi/${slug}`)
+    .then(response => response.json())
+    .then(data => {
+      searchInput.value = '';
+      
+      if (data.error) {
+        alert('Erreur : ' + data.error);
+        return;
+      }
+      
+      // Pré-remplir le formulaire
+      if (data.domaine) document.getElementById('domaine').value = data.domaine;
+      if (data.cuvee) document.getElementById('cuvee').value = data.cuvee;
+      if (data.type_vin) {
+        const typeSelect = document.getElementById('type_vin');
+        for (let opt of typeSelect.options) {
+          if (opt.value.toLowerCase() === data.type_vin.toLowerCase()) {
+            typeSelect.value = opt.value;
+            break;
+          }
+        }
+      }
+      if (data.region) document.getElementById('region').value = data.region;
+      if (data.description) document.getElementById('description').value = data.description;
+      
+      // Afficher les infos VinoFYI
+      const infoDiv = document.getElementById('vinofyi-info');
+      const ratingP = document.getElementById('vinofyi-rating');
+      if (data.note_moyenne && data.nombre_notes) {
+        ratingP.innerHTML = `⭐ Note VinoFYI : <strong>${data.note_moyenne}/5</strong> (${data.nombre_notes} avis)`;
+        infoDiv.style.display = 'block';
+      }
+      
+      // Focus sur le millésime (champ manquant dans VinoFYI)
+      document.getElementById('millesime').focus();
+      
+      // Message de confirmation
+      flashMessage('✅ Formulaire pré-rempli ! Veuillez compléter le millésime.', 'success');
+    })
+    .catch(err => {
+      searchInput.value = '';
+      console.error('Erreur détail VinoFYI:', err);
+      alert('Erreur lors du chargement des détails.');
+    });
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function flashMessage(message, type) {
+  // Créer un flash message temporaire
+  const container = document.querySelector('.container');
+  const flash = document.createElement('div');
+  flash.className = `flash ${type}`;
+  flash.textContent = message;
+  flash.style.marginBottom = '1rem';
+  container.insertBefore(flash, container.firstChild);
+  
+  setTimeout(() => {
+    flash.remove();
+  }, 5000);
+}
+</script>
+
 <style>
   .subtitle {
     color: #666;
     margin-top: -0.5rem;
     margin-bottom: 1.5rem;
   }
+  
+  /* ─── Recherche ─── */
+  .search-section {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  .search-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--primary);
+  }
+  .search-section input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    font-size: 1rem;
+    background: #fff8f8;
+  }
+  .search-section input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+  }
+  
+  /* ─── Résultats ─── */
+  .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 4px;
+  }
+  .results-header {
+    padding: 0.5rem 1rem;
+    background: #f5f5f5;
+    font-size: 0.85rem;
+    color: #666;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .result-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+  }
+  .result-item:hover {
+    background: #fff5f5;
+  }
+  .result-item:last-child {
+    border-bottom: none;
+  }
+  .result-name {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .result-type {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 2px;
+  }
+  .no-results {
+    padding: 1rem;
+    color: #888;
+    text-align: center;
+  }
+  .more-results {
+    padding: 0.5rem 1rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  /* ─── Loading ─── */
+  .search-loading {
+    padding: 0.5rem 0;
+    color: #888;
+    font-size: 0.9rem;
+  }
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #ddd;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* ─── Info VinoFYI ─── */
+  .vinofyi-info {
+    background: #f0f7ff;
+    border-left: 4px solid #1565c0;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 4px;
+  }
+  .vinofyi-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #1565c0;
+  }
+  .vinofyi-info p {
+    margin: 0;
+    color: #333;
+  }
+  
+  /* ─── Formulaire ─── */
   .form-actions {
     margin-top: 1.5rem;
     display: flex;
