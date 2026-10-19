@@ -2,9 +2,24 @@
 
 from __future__ import annotations
 
+import os
+from datetime import datetime
+
 from flask import Blueprint, flash, g, jsonify, redirect, render_template, request, url_for
+from werkzeug.utils import secure_filename
 
 from macave.services import stock_service, vinofyi_service
+
+# Configuration upload
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), "..", "static", "uploads", "vins")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 Mo
+
+
+def allowed_file(filename: str) -> bool:
+    """Vérifie l'extension du fichier."""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 bp = Blueprint("catalogue", __name__, url_prefix="/catalogue")
 
@@ -64,6 +79,43 @@ def ajouter_vin():
         region = request.form["region"].strip()
         description = request.form.get("description", "").strip()
         photo_url = request.form.get("photo_url", "").strip()
+
+        # Gestion de l'upload d'image
+        photo_file = request.files.get("photo_file")
+        if photo_file and photo_file.filename:
+            if not allowed_file(photo_file.filename):
+                flash("Format d'image non supporté. Utilisez JPG, PNG, GIF ou WebP.", "danger")
+                return render_template(
+                    "catalogue/ajouter_vin.html",
+                    domaine=domaine, cuvee=cuvee, type_vin=type_vin,
+                    millesime=millesime, region=region,
+                    description=description, photo_url=photo_url,
+                )
+
+            # Vérification taille
+            photo_file.seek(0, os.SEEK_END)
+            file_size = photo_file.tell()
+            photo_file.seek(0)
+
+            if file_size > MAX_FILE_SIZE:
+                flash("L'image est trop grande. Maximum 5 Mo.", "danger")
+                return render_template(
+                    "catalogue/ajouter_vin.html",
+                    domaine=domaine, cuvee=cuvee, type_vin=type_vin,
+                    millesime=millesime, region=region,
+                    description=description, photo_url=photo_url,
+                )
+
+            # Sauvegarde du fichier
+            os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+            filename = secure_filename(photo_file.filename)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{timestamp}_{filename}"
+            filepath = os.path.join(UPLOAD_FOLDER, filename)
+            photo_file.save(filepath)
+
+            # Chemin relatif pour la BDD (depuis static/)
+            photo_url = f"uploads/vins/{filename}"
 
         # Validation des champs obligatoires
         erreurs = []

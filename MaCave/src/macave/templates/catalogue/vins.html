@@ -15,7 +15,8 @@
       <div class="vin-card-catalogue">
         {% if vin.photo_url %}
         <div class="vin-photo">
-          <img src="{{ vin.photo_url }}" alt="{{ vin.domaine }} {{ vin.cuvee }}" 
+          <img src="{% if vin.photo_url.startswith('http') %}{{ vin.photo_url }}{% else %}{{ url_for('static', filename=vin.photo_url) }}{% endif %}" 
+               alt="{{ vin.domaine }} {{ vin.cuvee }}" 
                onerror="this.parentElement.style.display='none'">
         </div>
         {% endif %}

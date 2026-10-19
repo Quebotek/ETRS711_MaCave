@@ -20,7 +20,7 @@
   <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
 
   <!-- ═══ Formulaire ═══ -->
-  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin">
+  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin" enctype="multipart/form-data">
     <div class="grid-2">
       <div>
         <label for="domaine">
@@ -100,10 +100,31 @@
              placeholder="Ex: Bordeaux, Bourgogne, Napa Valley..." required>
     </div>
 
-    <div>
-      <label for="photo_url">URL de la photo (optionnel)</label>
-      <input type="url" id="photo_url" name="photo_url" value="{{ photo_url or '' }}" 
-             placeholder="https://example.com/photo.jpg">
+    <div class="photo-upload-section">
+      <label>Photo du vin</label>
+      <div class="photo-tabs">
+        <button type="button" class="photo-tab active" onclick="switchPhotoTab('upload')" id="tab-upload">
+          📁 Télécharger
+        </button>
+        <button type="button" class="photo-tab" onclick="switchPhotoTab('url')" id="tab-url">
+          🌐 URL
+        </button>
+      </div>
+      
+      <div id="photo-upload-panel" class="photo-panel active">
+        <input type="file" id="photo_file" name="photo_file" accept="image/jpeg,image/png,image/gif,image/webp" 
+               onchange="previewImage(this)">
+        <p class="photo-help">Formats acceptés : JPG, PNG, GIF, WebP — Max 5 Mo</p>
+        <div id="photo-preview-container" class="photo-preview" style="display:none;">
+          <img id="photo-preview" alt="Aperçu">
+          <button type="button" class="btn-clear-photo" onclick="clearPhoto()">✕ Supprimer</button>
+        </div>
+      </div>
+      
+      <div id="photo-url-panel" class="photo-panel" style="display:none;">
+        <input type="url" id="photo_url" name="photo_url" value="{{ photo_url or '' }}" 
+               placeholder="https://example.com/photo.jpg">
+      </div>
     </div>
 
     <div>
@@ -432,6 +453,61 @@ function flashMessage(message, type) {
   }, 5000);
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Gestion de la photo (upload / URL)
+// ═══════════════════════════════════════════════════════════════
+
+function switchPhotoTab(tab) {
+  // Mise à jour des boutons
+  document.querySelectorAll('.photo-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  
+  // Mise à jour des panneaux
+  document.querySelectorAll('.photo-panel').forEach(p => p.style.display = 'none');
+  document.getElementById('photo-' + tab + '-panel').style.display = 'block';
+  
+  // Reset l'autre champ
+  if (tab === 'upload') {
+    document.getElementById('photo_url').value = '';
+  } else {
+    clearPhoto();
+  }
+}
+
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  // Validation taille (5 Mo)
+  if (file.size > 5 * 1024 * 1024) {
+    alert('L\'image est trop grande. Maximum 5 Mo.');
+    input.value = '';
+    return;
+  }
+  
+  // Validation format
+  const formats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (!formats.includes(file.type)) {
+    alert('Format non supporté. Utilisez JPG, PNG, GIF ou WebP.');
+    input.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const preview = document.getElementById('photo-preview');
+    preview.src = e.target.result;
+    document.getElementById('photo-preview-container').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  document.getElementById('photo_file').value = '';
+  document.getElementById('photo-preview-container').style.display = 'none';
+  document.getElementById('photo-preview').src = '';
+}
+
 // Initialiser les accords si un type est déjà sélectionné
 document.addEventListener('DOMContentLoaded', function() {
   const typeSelect = document.getElementById('type_vin');
@@ -690,6 +766,85 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 4px;
     font-size: 1rem;
     background: white;
+  }
+
+  /* ─── Photo Upload ─── */
+  .photo-upload-section {
+    margin: 1rem 0;
+  }
+  .photo-upload-section label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+  }
+  .photo-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+  }
+  .photo-tab {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .photo-tab.active {
+    border-bottom-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .photo-tab:hover {
+    color: var(--primary);
+  }
+  .photo-panel {
+    padding: 0.75rem 0;
+  }
+  .photo-panel input[type="file"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .photo-panel input[type="file"]:hover {
+    border-color: var(--primary);
+  }
+  .photo-help {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+  }
+  .photo-preview {
+    margin-top: 0.75rem;
+    text-align: center;
+  }
+  .photo-preview img {
+    max-width: 200px;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .btn-clear-photo {
+    display: block;
+    margin: 0.5rem auto 0;
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 0.3rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+  }
+  .btn-clear-photo:hover {
+    background: #c62828;
   }
 </style>
 {% endblock %}
