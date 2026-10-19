@@ -2,80 +2,80 @@
 {% block title %}Ajouter des bouteilles — MaCave{% endblock %}
 {% block content %}
 <div class="card">
-  <h2>🍷 Ajouter des bouteilles à ma cave</h2>
-  <p class="subtitle">Sélectionnez un vin du catalogue, une étagère et la quantité à stocker.</p>
+ <h2> Ajouter des bouteilles à ma cave</h2>
+ <p class="subtitle">Sélectionnez un vin du catalogue, une étagère et la quantité à stocker.</p>
 
-  <form method="post" action="{{ url_for('cave.ajouter_bouteilles') }}">
-    <div>
-      <label for="vin_id">Vin *</label>
-      <select id="vin_id" name="vin_id" required>
-        <option value="">-- Choisir un vin --</option>
-        {% for v in vins %}
-        <option value="{{ v.id }}" {% if vin_id|string == v.id|string %}selected{% endif %}>
-          {{ v.domaine }} — {{ v.cuvee }} ({{ v.millesime }}) — {{ v.region }} — {{ v.type_vin }}
-        </option>
-        {% endfor %}
-      </select>
-    </div>
+ <form method="post" action="{{ url_for('cave.ajouter_bouteilles') }}">
+ <div>
+ <label for="vin_id">Vin *</label>
+ <select id="vin_id" name="vin_id" required>
+ <option value="">-- Choisir un vin --</option>
+ {% for v in vins %}
+ <option value="{{ v.id }}" {% if vin_id|string == v.id|string %}selected{% endif %}>
+ {{ v.domaine }} — {{ v.cuvee }} ({{ v.millesime }}) — {{ v.region }} — {{ v.type_vin }}
+ </option>
+ {% endfor %}
+ </select>
+ </div>
 
-    <div>
-      <label for="etagere_id">Étagère *</label>
-      <select id="etagere_id" name="etagere_id" required>
-        <option value="">-- Choisir une étagère --</option>
-        {% for e in etageres %}
-        <option value="{{ e.id }}" {% if etagere_id|string == e.id|string %}selected{% endif %}>
-          {{ e.nom }} ({{ e.places_libres }} place{{ 's' if e.places_libres > 1 else '' }} libre{{ 's' if e.places_libres > 1 else '' }} / {{ e.capacite_max }})
-        </option>
-        {% endfor %}}
-      </select>
-    </div>
+ <div>
+ <label for="etagere_id">Étagère *</label>
+ <select id="etagere_id" name="etagere_id" required>
+ <option value="">-- Choisir une étagère --</option>
+ {% for e in etageres %}
+ <option value="{{ e.id }}" {% if etagere_id|string == e.id|string %}selected{% endif %}>
+ {{ e.nom }} ({{ e.places_libres }} place{{ 's' if e.places_libres > 1 else '' }} libre{{ 's' if e.places_libres > 1 else '' }} / {{ e.capacite_max }})
+ </option>
+ {% endfor %}}
+ </select>
+ </div>
 
-    <div class="grid-2">
-      <div>
-        <label for="prix">Prix d'achat unitaire (€)</label>
-        <input type="number" id="prix" name="prix" step="0.01" min="0"
-               value="{{ prix or '' }}" placeholder="Ex: 25.50">
-      </div>
-      <div>
-        <label for="quantite">Quantité *</label>
-        <input type="number" id="quantite" name="quantite" min="1" required
-               value="{{ quantite or '' }}" placeholder="Ex: 6">
-      </div>
-    </div>
+ <div class="grid-2">
+ <div>
+ <label for="prix">Prix d'achat unitaire (€)</label>
+ <input type="number" id="prix" name="prix" step="0.01" min="0"
+ value="{{ prix or '' }}" placeholder="Ex: 25.50">
+ </div>
+ <div>
+ <label for="quantite">Quantité *</label>
+ <input type="number" id="quantite" name="quantite" min="1" required
+ value="{{ quantite or '' }}" placeholder="Ex: 6">
+ </div>
+ </div>
 
-    <div class="form-actions">
-      <button type="submit">➕ Ajouter le lot</button>
-      <a href="{{ url_for('cave.dashboard') }}" class="btn btn-secondary">Annuler</a>
-    </div>
-  </form>
+ <div class="form-actions">
+ <button type="submit">+ Ajouter le lot</button>
+ <a href="{{ url_for('cave.dashboard') }}" class="btn btn-secondary">Annuler</a>
+ </div>
+ </form>
 </div>
 
 <style>
-  .subtitle {
-    color: #666;
-    margin-top: -0.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .form-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
-  .btn-secondary {
-    background: #6c757d;
-  }
-  .btn-secondary:hover {
-    background: #5a6268;
-  }
-  select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 1rem;
-    background: white;
-    margin-bottom: 1rem;
-  }
+ .subtitle {
+ color: #666;
+ margin-top: -0.5rem;
+ margin-bottom: 1.5rem;
+ }
+ .form-actions {
+ margin-top: 1.5rem;
+ display: flex;
+ gap: 1rem;
+ align-items: center;
+ }
+ .btn-secondary {
+ background: #6c757d;
+ }
+ .btn-secondary:hover {
+ background: #5a6268;
+ }
+ select {
+ width: 100%;
+ padding: 0.5rem;
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ font-size: 1rem;
+ background: white;
+ margin-bottom: 1rem;
+ }
 </style>
 {% endblock %}

@@ -453,7 +453,7 @@ Le script `seed.py` initialise automatiquement deux comptes pour vérifier le co
 ## Limites et perspectives
 
 * **Photos des vins :** Gestion des images via **upload fichier** (JPG/PNG/GIF/WebP, max 5 Mo) ou **URL externe**.
-* **✅ Interface enrichie :** Inventaire visuel avec filtres, système de notation complet, conseils & accords mets-vins.
+* ** Interface enrichie :** Inventaire visuel avec filtres, système de notation complet, conseils & accords mets-vins.
 * **Perspectives :** 
   * Export CSV/PDF de l'inventaire personnel
   * Statistiques personnelles de dégustation

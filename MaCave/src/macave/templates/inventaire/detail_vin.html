@@ -4,201 +4,201 @@
 <a href="{{ url_for('inventaire.index') }}" class="btn btn-back" style="margin-bottom: 1rem;">← Retour à l'inventaire</a>
 
 <div class="vin-detail-container">
-  <!-- Fiche du vin -->
-  <div class="card vin-fiche">
-    {% if vin.photo_url %}
-    <div class="vin-photo-large">
-      <img src="{% if vin.photo_url.startswith('http') %}{{ vin.photo_url }}{% else %}{{ url_for('static', filename=vin.photo_url) }}{% endif %}" 
-           alt="{{ vin.domaine }} {{ vin.cuvee }}"
-           onerror="this.parentElement.style.display='none'">
-    </div>
-    {% endif %}
+ <!-- Fiche du vin -->
+ <div class="card vin-fiche">
+ {% if vin.photo_url %}
+ <div class="vin-photo-large">
+ <img src="{% if vin.photo_url.startswith('http') %}{{ vin.photo_url }}{% else %}{{ url_for('static', filename=vin.photo_url) }}{% endif %}" 
+ alt="{{ vin.domaine }} {{ vin.cuvee }}"
+ onerror="this.parentElement.style.display='none'">
+ </div>
+ {% endif %}
 
-    <div class="vin-fiche-info">
-      <h2>{{ vin.domaine }}</h2>
-      <p class="cuvee-large">{{ vin.cuvee }}</p>
+ <div class="vin-fiche-info">
+ <h2>{{ vin.domaine }}</h2>
+ <p class="cuvee-large">{{ vin.cuvee }}</p>
 
-      <div class="note-moyenne-large">
-        <span class="note-chiffre">{{ note_moyenne }}</span>
-        <span class="note-text">Note communautaire</span>
-        <span class="note-count">{{ evaluations|length }} évaluation{{ 's' if evaluations|length > 1 else '' }}</span>
-      </div>
+ <div class="note-moyenne-large">
+ <span class="note-chiffre">{{ note_moyenne }}</span>
+ <span class="note-text">Note communautaire</span>
+ <span class="note-count">{{ evaluations|length }} évaluation{{ 's' if evaluations|length > 1 else '' }}</span>
+ </div>
 
-      <div class="vin-tags">
-        <span class="tag">📅 {{ vin.millesime }}</span>
-        <span class="tag">📍 {{ vin.region }}</span>
-        <span class="tag">🍇 {{ vin.type_vin }}</span>
-      </div>
+ <div class="vin-tags">
+ <span class="tag"> {{ vin.millesime }}</span>
+ <span class="tag"> {{ vin.region }}</span>
+ <span class="tag"> {{ vin.type_vin }}</span>
+ </div>
 
-      <!-- ═══ Conseils & Accords selon le type ═══ -->
-      <div class="conseils-card">
-        <h4>🍽️ Conseils & Accords</h4>
-        <p class="conseils-description" id="conseils-desc"></p>
-        <div class="conseils-list" id="conseils-list"></div>
-      </div>
+ <!-- ═══ Conseils & Accords selon le type ═══ -->
+ <div class="conseils-card">
+ <h4> Conseils & Accords</h4>
+ <p class="conseils-description" id="conseils-desc"></p>
+ <div class="conseils-list" id="conseils-list"></div>
+ </div>
 
-      {% if vin.description %}
-      <div class="vin-description">
-        <h4>Description</h4>
-        <p>{{ vin.description }}</p>
-      </div>
-      {% endif %}
-    </div>
-  </div>
+ {% if vin.description %}
+ <div class="vin-description">
+ <h4>Description</h4>
+ <p>{{ vin.description }}</p>
+ </div>
+ {% endif %}
+ </div>
+ </div>
 
-  <!-- Mes bouteilles -->
-  <div class="card">
-    <h3>🍾 Mes bouteilles ({{ bouteilles|length }})</h3>
+ <!-- Mes bouteilles -->
+ <div class="card">
+ <h3> Mes bouteilles ({{ bouteilles|length }})</h3>
 
-    {% if bouteilles %}
-    <table class="bouteilles-table">
-      <thead>
-        <tr>
-          <th>Statut</th>
-          <th>Étagère</th>
-          <th>Prix d'achat</th>
-          <th>Date d'ajout</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for b in bouteilles %}
-        <tr class="statut-{{ b.statut }}">
-          <td>
-            {% if b.statut == 'en_stock' %}
-            <span class="statut-badge statut-en_stock">En stock</span>
-            {% else %}
-            <span class="statut-badge statut-archivee">Archivée</span>
-            {% endif %}
-          </td>
-          <td>{{ b.etagere_nom or 'Aucune étagère' }}</td>
-          <td class="prix">{{ b.prix_achat }} €</td>
-          <td>{{ b.date_ajout }}</td>
-          <td>
-            {% if b.statut == 'en_stock' %}
-            <div class="actions-cell">
-              <button class="btn-link" onclick="showDeplacerModal({{ b.id }})">Déplacer</button>
-              <button class="btn-link btn-archiver" onclick="showArchiverModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')">Archiver</button>
-            </div>
-            {% else %}
-            <em>Archivée après dégustation</em>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="empty">Vous n'avez pas de bouteilles de ce vin.</p>
-    {% endif %}
-  </div>
+ {% if bouteilles %}
+ <table class="bouteilles-table">
+ <thead>
+ <tr>
+ <th>Statut</th>
+ <th>Étagère</th>
+ <th>Prix d'achat</th>
+ <th>Date d'ajout</th>
+ <th>Actions</th>
+ </tr>
+ </thead>
+ <tbody>
+ {% for b in bouteilles %}
+ <tr class="statut-{{ b.statut }}">
+ <td>
+ {% if b.statut == 'en_stock' %}
+ <span class="statut-badge statut-en_stock">En stock</span>
+ {% else %}
+ <span class="statut-badge statut-archivee">Archivée</span>
+ {% endif %}
+ </td>
+ <td>{{ b.etagere_nom or 'Aucune étagère' }}</td>
+ <td class="prix">{{ b.prix_achat }} €</td>
+ <td>{{ b.date_ajout }}</td>
+ <td>
+ {% if b.statut == 'en_stock' %}
+ <div class="actions-cell">
+ <button class="btn-link" onclick="showDeplacerModal({{ b.id }})">Déplacer</button>
+ <button class="btn-link btn-archiver" onclick="showArchiverModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')">Archiver</button>
+ </div>
+ {% else %}
+ <em>Archivée après dégustation</em>
+ {% endif %}
+ </td>
+ </tr>
+ {% endfor %}
+ </tbody>
+ </table>
+ {% else %}
+ <p class="empty">Vous n'avez pas de bouteilles de ce vin.</p>
+ {% endif %}
+ </div>
 
-  <!-- Évaluations communautaires -->
-  <div class="card">
-    <h3>💬 Évaluations communautaires</h3>
+ <!-- Évaluations communautaires -->
+ <div class="card">
+ <h3> Évaluations communautaires</h3>
 
-    {% if evaluations %}
-    <div class="evaluations-list">
-      {% for eval in evaluations %}
-      <div class="evaluation-item">
-        <div class="eval-header">
-          <span class="eval-note">{{ eval.note }}/20</span>
-          <span class="eval-author">par {{ eval.username }}</span>
-          <span class="eval-date">{{ eval.date_degustation }}</span>
-        </div>
-        {% if eval.commentaire %}
-        <p class="eval-commentaire">{{ eval.commentaire }}</p>
-        {% endif %}
-      </div>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p class="empty">Aucune évaluation pour le moment. Soyez le premier à déguster !</p>
-    {% endif %}
+ {% if evaluations %}
+ <div class="evaluations-list">
+ {% for eval in evaluations %}
+ <div class="evaluation-item">
+ <div class="eval-header">
+ <span class="eval-note">{{ eval.note }}/20</span>
+ <span class="eval-author">par {{ eval.username }}</span>
+ <span class="eval-date">{{ eval.date_degustation }}</span>
+ </div>
+ {% if eval.commentaire %}
+ <p class="eval-commentaire">{{ eval.commentaire }}</p>
+ {% endif %}
+ </div>
+ {% endfor %}
+ </div>
+ {% else %}
+ <p class="empty">Aucune évaluation pour le moment. Soyez le premier à déguster !</p>
+ {% endif %}
 
-    <!-- Ma notation -->
-    {% if ma_evaluation %}
-    <div class="ma-notation">
-      <h4>Votre évaluation</h4>
-      <div class="eval-item-mine">
-        <span class="eval-note">{{ ma_evaluation.note }}/20</span>
-        <p>{{ ma_evaluation.commentaire }}</p>
-        <button class="btn btn-sm" onclick="showModifierEvalModal({{ ma_evaluation.id }}, {{ ma_evaluation.note }}, '{{ ma_evaluation.commentaire|replace("'", "\\'") }}')">Modifier</button>
-      </div>
-    </div>
-    {% endif %}
-  </div>
+ <!-- Ma notation -->
+ {% if ma_evaluation %}
+ <div class="ma-notation">
+ <h4>Votre évaluation</h4>
+ <div class="eval-item-mine">
+ <span class="eval-note">{{ ma_evaluation.note }}/20</span>
+ <p>{{ ma_evaluation.commentaire }}</p>
+ <button class="btn btn-sm" onclick="showModifierEvalModal({{ ma_evaluation.id }}, {{ ma_evaluation.note }}, '{{ ma_evaluation.commentaire|replace("'", "\\'") }}')">Modifier</button>
+ </div>
+ </div>
+ {% endif %}
+ </div>
 </div>
 
 <!-- ===== MODALS ===== -->
 
 <!-- Modal déplacement -->
 <div id="deplacerModal" class="modal">
-  <div class="modal-content modal-small">
-    <span class="modal-close" onclick="hideDeplacerModal()">&times;</span>
-    <h3>Déplacer la bouteille</h3>
-    <form id="deplacerForm" method="POST">
-      <div class="form-group">
-        <label for="etagere_id">Nouvelle étagère</label>
-        <select id="etagere_id" name="etagere_id" required>
-          {% for e in etageres %}
-          <option value="{{ e.id }}">{{ e.nom }} ({{ e.capacite_max - e._occupation }} places libres)</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" onclick="hideDeplacerModal()" style="background: #666;">Annuler</button>
-        <button type="submit" class="btn">Déplacer</button>
-      </div>
-    </form>
-  </div>
+ <div class="modal-content modal-small">
+ <span class="modal-close" onclick="hideDeplacerModal()">&times;</span>
+ <h3>Déplacer la bouteille</h3>
+ <form id="deplacerForm" method="POST">
+ <div class="form-group">
+ <label for="etagere_id">Nouvelle étagère</label>
+ <select id="etagere_id" name="etagere_id" required>
+ {% for e in etageres %}
+ <option value="{{ e.id }}">{{ e.nom }} ({{ e.capacite_max - e._occupation }} places libres)</option>
+ {% endfor %}
+ </select>
+ </div>
+ <div class="modal-actions">
+ <button type="button" class="btn" onclick="hideDeplacerModal()" style="background: #666;">Annuler</button>
+ <button type="submit" class="btn">Déplacer</button>
+ </div>
+ </form>
+ </div>
 </div>
 
 <!-- Modal archivage -->
 <div id="archiverModal" class="modal">
-  <div class="modal-content">
-    <span class="modal-close" onclick="hideArchiverModal()">&times;</span>
-    <h3>Archiver et évaluer</h3>
-    <p id="modalVinNom" style="color: var(--primary); font-weight: bold;"></p>
-    <form id="archiverForm" method="POST">
-      <div class="form-group">
-        <label for="note">Note (0-20)</label>
-        <input type="number" id="note" name="note" min="0" max="20" value="10" required>
-        <div class="note-help">0 = Très mauvais, 10 = Moyen, 20 = Exceptionnel</div>
-      </div>
-      <div class="form-group">
-        <label for="commentaire">Commentaire de dégustation</label>
-        <textarea id="commentaire" name="commentaire" rows="4"
-                  placeholder="Décrivez votre expérience (arômes, couleur, accord mets...)"></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" onclick="hideArchiverModal()" style="background: #666;">Annuler</button>
-        <button type="submit" class="btn">Archiver et évaluer</button>
-      </div>
-    </form>
-  </div>
+ <div class="modal-content">
+ <span class="modal-close" onclick="hideArchiverModal()">&times;</span>
+ <h3>Archiver et évaluer</h3>
+ <p id="modalVinNom" style="color: var(--primary); font-weight: bold;"></p>
+ <form id="archiverForm" method="POST">
+ <div class="form-group">
+ <label for="note">Note (0-20)</label>
+ <input type="number" id="note" name="note" min="0" max="20" value="10" required>
+ <div class="note-help">0 = Très mauvais, 10 = Moyen, 20 = Exceptionnel</div>
+ </div>
+ <div class="form-group">
+ <label for="commentaire">Commentaire de dégustation</label>
+ <textarea id="commentaire" name="commentaire" rows="4"
+ placeholder="Décrivez votre expérience (arômes, couleur, accord mets...)"></textarea>
+ </div>
+ <div class="modal-actions">
+ <button type="button" class="btn" onclick="hideArchiverModal()" style="background: #666;">Annuler</button>
+ <button type="submit" class="btn">Archiver et évaluer</button>
+ </div>
+ </form>
+ </div>
 </div>
 
 <!-- Modal modification évaluation -->
 <div id="modifierEvalModal" class="modal">
-  <div class="modal-content">
-    <span class="modal-close" onclick="hideModifierEvalModal()">&times;</span>
-    <h3>Modifier votre évaluation</h3>
-    <form id="modifierEvalForm" method="POST">
-      <div class="form-group">
-        <label for="mod_note">Note (0-20)</label>
-        <input type="number" id="mod_note" name="note" min="0" max="20" required>
-      </div>
-      <div class="form-group">
-        <label for="mod_commentaire">Commentaire</label>
-        <textarea id="mod_commentaire" name="commentaire" rows="4"></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" onclick="hideModifierEvalModal()" style="background: #666;">Annuler</button>
-        <button type="submit" class="btn">Mettre à jour</button>
-      </div>
-    </form>
-  </div>
+ <div class="modal-content">
+ <span class="modal-close" onclick="hideModifierEvalModal()">&times;</span>
+ <h3>Modifier votre évaluation</h3>
+ <form id="modifierEvalForm" method="POST">
+ <div class="form-group">
+ <label for="mod_note">Note (0-20)</label>
+ <input type="number" id="mod_note" name="note" min="0" max="20" required>
+ </div>
+ <div class="form-group">
+ <label for="mod_commentaire">Commentaire</label>
+ <textarea id="mod_commentaire" name="commentaire" rows="4"></textarea>
+ </div>
+ <div class="modal-actions">
+ <button type="button" class="btn" onclick="hideModifierEvalModal()" style="background: #666;">Annuler</button>
+ <button type="submit" class="btn">Mettre à jour</button>
+ </div>
+ </form>
+ </div>
 </div>
 
 <style>
@@ -206,47 +206,47 @@
 .vin-detail-container { max-width: 1000px; }
 
 .vin-fiche {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 2rem;
-  align-items: start;
+ display: grid;
+ grid-template-columns: 300px 1fr;
+ gap: 2rem;
+ align-items: start;
 }
 
 .vin-photo-large {
-  width: 100%;
-  height: 300px;
-  background: #f0ece6;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+ width: 100%;
+ height: 300px;
+ background: #f0ece6;
+ border-radius: 12px;
+ overflow: hidden;
+ display: flex;
+ align-items: center;
+ justify-content: center;
 }
 .vin-photo-large img { width: 100%; height: 100%; object-fit: cover; }
 
 .vin-fiche-info h2 {
-  margin: 0 0 0.5rem 0;
-  color: var(--primary);
-  font-size: 1.8rem;
+ margin: 0 0 0.5rem 0;
+ color: var(--primary);
+ font-size: 1.8rem;
 }
 .cuvee-large {
-  font-size: 1.2rem;
-  color: #666;
-  font-style: italic;
-  margin: 0 0 1rem 0;
+ font-size: 1.2rem;
+ color: #666;
+ font-style: italic;
+ margin: 0 0 1rem 0;
 }
 
 .note-moyenne-large {
-  background: linear-gradient(135deg, var(--primary), #a00000);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  margin: 1.5rem 0;
+ background: linear-gradient(135deg, var(--primary), #a00000);
+ color: white;
+ padding: 1.5rem;
+ border-radius: 12px;
+ text-align: center;
+ margin: 1.5rem 0;
 }
-.note-chiffre   { display: block; font-size: 3rem; font-weight: bold; }
-.note-text      { display: block; font-size: 1rem; opacity: 0.9; }
-.note-count     { display: block; font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem; }
+.note-chiffre { display: block; font-size: 3rem; font-weight: bold; }
+.note-text { display: block; font-size: 1rem; opacity: 0.9; }
+.note-count { display: block; font-size: 0.9rem; opacity: 0.8; margin-top: 0.5rem; }
 
 .vin-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
 .tag { background: #f5f5f5; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; }
@@ -256,33 +256,33 @@
 
 /* ---------- Conseils & Accords ---------- */
 .conseils-card {
-  background: linear-gradient(135deg, #fff8f0, #fff3e0);
-  border-left: 4px solid #f9a825;
-  padding: 1.25rem;
-  border-radius: 8px;
-  margin-top: 1rem;
+ background: linear-gradient(135deg, #fff8f0, #fff3e0);
+ border-left: 4px solid #f9a825;
+ padding: 1.25rem;
+ border-radius: 8px;
+ margin-top: 1rem;
 }
 .conseils-card h4 {
-  margin: 0 0 0.75rem 0;
-  color: #e65100;
+ margin: 0 0 0.75rem 0;
+ color: #e65100;
 }
 .conseils-description {
-  color: #666;
-  font-style: italic;
-  margin-bottom: 0.75rem;
+ color: #666;
+ font-style: italic;
+ margin-bottom: 0.75rem;
 }
 .conseils-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+ display: flex;
+ flex-wrap: wrap;
+ gap: 0.5rem;
 }
 .conseil-tag {
-  background: white;
-  border: 1px solid #f9a825;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #e65100;
+ background: white;
+ border: 1px solid #f9a825;
+ padding: 0.4rem 0.8rem;
+ border-radius: 20px;
+ font-size: 0.9rem;
+ color: #e65100;
 }
 
 /* ---------- Table bouteilles ---------- */
@@ -318,38 +318,38 @@
 
 /* ---------- Modals ---------- */
 .modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;               /* ← caché par défaut */
-  align-items: center;
-  justify-content: center;
+ position: fixed;
+ z-index: 1000;
+ left: 0;
+ top: 0;
+ width: 100%;
+ height: 100%;
+ background: rgba(0,0,0,0.5);
+ display: none; /* ← caché par défaut */
+ align-items: center;
+ justify-content: center;
 }
 .modal.visible { display: flex; }
 
 .modal-content {
-  background: var(--card);
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
+ background: var(--card);
+ padding: 2rem;
+ border-radius: 12px;
+ max-width: 500px;
+ width: 90%;
+ position: relative;
+ max-height: 90vh;
+ overflow-y: auto;
 }
 .modal-small { max-width: 400px; }
 
 .modal-close {
-  position: absolute;
-  right: 1rem;
-  top: 1rem;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #999;
+ position: absolute;
+ right: 1rem;
+ top: 1rem;
+ font-size: 1.5rem;
+ cursor: pointer;
+ color: #999;
 }
 .modal-close:hover { color: var(--text); }
 
@@ -365,62 +365,62 @@
 .empty { color: #666; font-style: italic; text-align: center; padding: 2rem; }
 
 @media (max-width: 768px) {
-  .vin-fiche { grid-template-columns: 1fr; }
-  .vin-photo-large { height: 250px; }
+ .vin-fiche { grid-template-columns: 1fr; }
+ .vin-photo-large { height: 250px; }
 }
 </style>
 
 <script>
 // ═══ Conseils & Accords selon le type de vin ═══
 const conseilsParType = {
-  'Rouge': {
-    description: 'Vins rouges aux tanins et fruits rouges/noirs',
-    accords: ['🥩 Viande rouge grillée', '🧀 Fromage affiné', '🍖 Gibier', '🍝 Plat en sauce']
-  },
-  'Blanc': {
-    description: 'Vins blancs frais et fruités',
-    accords: ['🐟 Poisson / fruits de mer', '🦪 Huîtres', '🥗 Salade', '🐔 Volaille']
-  },
-  'Rosé': {
-    description: 'Vins rosés légers et frais',
-    accords: ['🥗 Salade méditerranéenne', '🦐 Fruits de mer', '🍕 Pizza', '🌮 Tapas']
-  },
-  'Champagne': {
-    description: 'Bulles élégantes et festives',
-    accords: ['🦪 Huîtres', '🍤 Crevettes', '🧀 Fromage blanc', '🍓 Fruits rouges']
-  },
-  'Effervescent': {
-    description: 'Vins pétillants festifs',
-    accords: ['🍤 Apéritif', '🥗 Entrées légères', '🍰 Dessert fruité']
-  },
-  'Doux': {
-    description: 'Vins sucrés et onctueux',
-    accords: ['🍰 Dessert au chocolat', '🧀 Foie gras', '🫐 Tarte aux fruits', '🧀 Roquefort']
-  },
-  'Fortifié': {
-    description: 'Vins riches et alcoolisés',
-    accords: ['🍫 Chocolat noir', '🧀 Fromage bleu', '🥜 Noix / fruits secs', '🚬 Cigare']
-  }
+ 'Rouge': {
+ description: 'Vins rouges aux tanins et fruits rouges/noirs',
+ accords: [' Viande rouge grillée', ' Fromage affiné', ' Gibier', ' Plat en sauce']
+ },
+ 'Blanc': {
+ description: 'Vins blancs frais et fruités',
+ accords: [' Poisson / fruits de mer', ' Huîtres', ' Salade', ' Volaille']
+ },
+ 'Rosé': {
+ description: 'Vins rosés légers et frais',
+ accords: [' Salade méditerranéenne', ' Fruits de mer', ' Pizza', ' Tapas']
+ },
+ 'Champagne': {
+ description: 'Bulles élégantes et festives',
+ accords: [' Huîtres', ' Crevettes', ' Fromage blanc', ' Fruits rouges']
+ },
+ 'Effervescent': {
+ description: 'Vins pétillants festifs',
+ accords: [' Apéritif', ' Entrées légères', ' Dessert fruité']
+ },
+ 'Doux': {
+ description: 'Vins sucrés et onctueux',
+ accords: [' Dessert au chocolat', ' Foie gras', ' Tarte aux fruits', ' Roquefort']
+ },
+ 'Fortifié': {
+ description: 'Vins riches et alcoolisés',
+ accords: [' Chocolat noir', ' Fromage bleu', ' Noix / fruits secs', ' Cigare']
+ }
 };
 
 function afficherConseils() {
-  const typeVin = '{{ vin.type_vin | safe }}';
-  const descEl = document.getElementById('conseils-desc');
-  const listEl = document.getElementById('conseils-list');
-  
-  if (!typeVin || !conseilsParType[typeVin]) {
-    document.querySelector('.conseils-card').style.display = 'none';
-    return;
-  }
-  
-  const data = conseilsParType[typeVin];
-  descEl.textContent = data.description;
-  
-  let html = '';
-  data.accords.forEach(accord => {
-    html += `<span class="conseil-tag">${accord}</span>`;
-  });
-  listEl.innerHTML = html;
+ const typeVin = '{{ vin.type_vin | safe }}';
+ const descEl = document.getElementById('conseils-desc');
+ const listEl = document.getElementById('conseils-list');
+ 
+ if (!typeVin || !conseilsParType[typeVin]) {
+ document.querySelector('.conseils-card').style.display = 'none';
+ return;
+ }
+ 
+ const data = conseilsParType[typeVin];
+ descEl.textContent = data.description;
+ 
+ let html = '';
+ data.accords.forEach(accord => {
+ html += `<span class="conseil-tag">${accord}</span>`;
+ });
+ listEl.innerHTML = html;
 }
 
 // Exécuter au chargement
@@ -429,39 +429,39 @@ document.addEventListener('DOMContentLoaded', afficherConseils);
 let currentBouteilleId = null;
 
 function showDeplacerModal(bouteilleId) {
-  currentBouteilleId = bouteilleId;
-  document.getElementById('deplacerForm').action = '/inventaire/bouteille/' + bouteilleId + '/deplacer';
-  document.getElementById('deplacerModal').classList.add('visible');
+ currentBouteilleId = bouteilleId;
+ document.getElementById('deplacerForm').action = '/inventaire/bouteille/' + bouteilleId + '/deplacer';
+ document.getElementById('deplacerModal').classList.add('visible');
 }
 function hideDeplacerModal() {
-  document.getElementById('deplacerModal').classList.remove('visible');
-  currentBouteilleId = null;
+ document.getElementById('deplacerModal').classList.remove('visible');
+ currentBouteilleId = null;
 }
 
 function showArchiverModal(bouteilleId, vinNom) {
-  document.getElementById('modalVinNom').textContent = vinNom;
-  document.getElementById('archiverForm').action = '/inventaire/bouteille/' + bouteilleId + '/archiver';
-  document.getElementById('archiverModal').classList.add('visible');
+ document.getElementById('modalVinNom').textContent = vinNom;
+ document.getElementById('archiverForm').action = '/inventaire/bouteille/' + bouteilleId + '/archiver';
+ document.getElementById('archiverModal').classList.add('visible');
 }
 function hideArchiverModal() {
-  document.getElementById('archiverModal').classList.remove('visible');
+ document.getElementById('archiverModal').classList.remove('visible');
 }
 
 function showModifierEvalModal(evalId, note, commentaire) {
-  document.getElementById('mod_note').value = note;
-  document.getElementById('mod_commentaire').value = commentaire;
-  document.getElementById('modifierEvalForm').action = '/evaluation/' + evalId + '/modifier';
-  document.getElementById('modifierEvalModal').classList.add('visible');
+ document.getElementById('mod_note').value = note;
+ document.getElementById('mod_commentaire').value = commentaire;
+ document.getElementById('modifierEvalForm').action = '/evaluation/' + evalId + '/modifier';
+ document.getElementById('modifierEvalModal').classList.add('visible');
 }
 function hideModifierEvalModal() {
-  document.getElementById('modifierEvalModal').classList.remove('visible');
+ document.getElementById('modifierEvalModal').classList.remove('visible');
 }
 
 // Fermer les modals en cliquant dehors
 window.onclick = function(event) {
-  if (event.target.classList.contains('modal')) {
-    event.target.classList.remove('visible');
-  }
+ if (event.target.classList.contains('modal')) {
+ event.target.classList.remove('visible');
+ }
 }
 </script>
 {% endblock %}

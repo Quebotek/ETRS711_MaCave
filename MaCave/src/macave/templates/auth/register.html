@@ -2,21 +2,21 @@
 {% block title %}Inscription — MaCave{% endblock %}
 {% block content %}
 <div class="card" style="max-width: 400px; margin: 3rem auto;">
-  <h2>Inscription</h2>
-  <form method="post">
-    <label for="username">Nom d'utilisateur</label>
-    <input name="username" id="username" required autofocus>
+ <h2>Inscription</h2>
+ <form method="post">
+ <label for="username">Nom d'utilisateur</label>
+ <input name="username" id="username" required autofocus>
 
-    <label for="email">Email</label>
-    <input type="email" name="email" id="email" required>
+ <label for="email">Email</label>
+ <input type="email" name="email" id="email" required>
 
-    <label for="password">Mot de passe</label>
-    <input type="password" name="password" id="password" required>
+ <label for="password">Mot de passe</label>
+ <input type="password" name="password" id="password" required>
 
-    <button type="submit" style="margin-top: 1rem; width: 100%;">Créer mon compte</button>
-  </form>
-  <p style="text-align: center; margin-top: 1rem;">
-    Déjà un compte ? <a href="{{ url_for('auth.login') }}">Se connecter</a>
-  </p>
+ <button type="submit" style="margin-top: 1rem; width: 100%;">Créer mon compte</button>
+ </form>
+ <p style="text-align: center; margin-top: 1rem;">
+ Déjà un compte ? <a href="{{ url_for('auth.login') }}">Se connecter</a>
+ </p>
 </div>
 {% endblock %}

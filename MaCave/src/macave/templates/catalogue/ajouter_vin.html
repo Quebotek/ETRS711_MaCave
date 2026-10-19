@@ -2,134 +2,134 @@
 {% block title %}Ajouter un vin — MaCave{% endblock %}
 {% block content %}
 <div class="card">
-  <h2>🍇 Ajouter une nouvelle référence de vin</h2>
-  <p class="subtitle">Remplissez manuellement les informations du vin ci-dessous.</p>
+ <h2> Ajouter une nouvelle référence de vin</h2>
+ <p class="subtitle">Remplissez manuellement les informations du vin ci-dessous.</p>
 
-  <!-- ═══ Formulaire ═══ -->
-  <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin" enctype="multipart/form-data">
-    <div class="grid-2">
-      <div>
-        <label for="domaine">
-          Domaine 
-          <span class="info-tooltip" title="Le domaine ou producteur du vin (ex: Château Margaux, Domaine de la Romanée-Conti)">ℹ️</span>
-          *
-        </label>
-        <input type="text" id="domaine" name="domaine" value="{{ domaine or '' }}" 
-               placeholder="Ex: Château Margaux" required>
-      </div>
-      <div>
-        <label for="cuvee">
-          Cuvée 
-          <span class="info-tooltip" title="Le nom spécifique du vin (ex: Grand Vin, Cuvée Spéciale, ou le nom du vin lui-même)">ℹ️</span>
-          *
-        </label>
-        <input type="text" id="cuvee" name="cuvee" value="{{ cuvee or '' }}" 
-               placeholder="Ex: Grand Vin" required>
-      </div>
-    </div>
+ <!-- ═══ Formulaire ═══ -->
+ <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin" enctype="multipart/form-data">
+ <div class="grid-2">
+ <div>
+ <label for="domaine">
+ Domaine 
+ <span class="info-tooltip" title="Le domaine ou producteur du vin (ex: Château Margaux, Domaine de la Romanée-Conti)"></span>
+ *
+ </label>
+ <input type="text" id="domaine" name="domaine" value="{{ domaine or '' }}" 
+ placeholder="Ex: Château Margaux" required>
+ </div>
+ <div>
+ <label for="cuvee">
+ Cuvée 
+ <span class="info-tooltip" title="Le nom spécifique du vin (ex: Grand Vin, Cuvée Spéciale, ou le nom du vin lui-même)"></span>
+ *
+ </label>
+ <input type="text" id="cuvee" name="cuvee" value="{{ cuvee or '' }}" 
+ placeholder="Ex: Grand Vin" required>
+ </div>
+ </div>
 
-    <div class="grid-2">
-      <div>
-        <label for="type_vin">
-          Type de vin 
-          <span class="info-tooltip" title="Le style général du vin">ℹ️</span>
-          *
-        </label>
-        <select id="type_vin" name="type_vin" required onchange="chargerAccords()">
-          <option value="">-- Sélectionnez --</option>
-          <option value="Rouge" {% if type_vin == 'Rouge' %}selected{% endif %}>Rouge</option>
-          <option value="Blanc" {% if type_vin == 'Blanc' %}selected{% endif %}>Blanc</option>
-          <option value="Rosé" {% if type_vin == 'Rosé' %}selected{% endif %}>Rosé</option>
-          <option value="Champagne" {% if type_vin == 'Champagne' %}selected{% endif %}>Champagne</option>
-          <option value="Effervescent" {% if type_vin == 'Effervescent' %}selected{% endif %}>Effervescent</option>
-          <option value="Doux" {% if type_vin == 'Doux' %}selected{% endif %}>Doux / Liquoreux</option>
-          <option value="Fortifié" {% if type_vin == 'Fortifié' %}selected{% endif %}>Fortifié</option>
-        </select>
-      </div>
-      <div>
-        <label for="millesime">
-          Millésime 
-          <span class="info-tooltip" title="L'année de récolte des raisins. Pour les vins sans millésime (NV), entrez 0 ou l'année actuelle.">ℹ️</span>
-          *
-        </label>
-        <input type="number" id="millesime" name="millesime" value="{{ millesime or '' }}" 
-               placeholder="Ex: 2015" min="1800" max="2100" required>
-      </div>
-    </div>
+ <div class="grid-2">
+ <div>
+ <label for="type_vin">
+ Type de vin 
+ <span class="info-tooltip" title="Le style général du vin"></span>
+ *
+ </label>
+ <select id="type_vin" name="type_vin" required onchange="chargerAccords()">
+ <option value="">-- Sélectionnez --</option>
+ <option value="Rouge" {% if type_vin == 'Rouge' %}selected{% endif %}>Rouge</option>
+ <option value="Blanc" {% if type_vin == 'Blanc' %}selected{% endif %}>Blanc</option>
+ <option value="Rosé" {% if type_vin == 'Rosé' %}selected{% endif %}>Rosé</option>
+ <option value="Champagne" {% if type_vin == 'Champagne' %}selected{% endif %}>Champagne</option>
+ <option value="Effervescent" {% if type_vin == 'Effervescent' %}selected{% endif %}>Effervescent</option>
+ <option value="Doux" {% if type_vin == 'Doux' %}selected{% endif %}>Doux / Liquoreux</option>
+ <option value="Fortifié" {% if type_vin == 'Fortifié' %}selected{% endif %}>Fortifié</option>
+ </select>
+ </div>
+ <div>
+ <label for="millesime">
+ Millésime 
+ <span class="info-tooltip" title="L'année de récolte des raisins. Pour les vins sans millésime (NV), entrez 0 ou l'année actuelle."></span>
+ *
+ </label>
+ <input type="number" id="millesime" name="millesime" value="{{ millesime or '' }}" 
+ placeholder="Ex: 2015" min="1800" max="2100" required>
+ </div>
+ </div>
 
-    <!-- ═══ Cépage avec auto-complétion ═══ -->
-    <div>
-      <label for="cepage-search">
-        Cépage principal 
-        <span class="info-tooltip" title="Le raisin principal utilisé pour ce vin (ex: Cabernet Sauvignon, Chardonnay). Recherchez dans les 777 cépages de VinoFYI.">ℹ️</span>
-      </label>
-      <div class="cepage-wrapper">
-        <input type="text" id="cepage-search" 
-               placeholder="Tapez pour chercher un cépage (ex: Cabernet, Chardonnay...)" 
-               autocomplete="off">
-        <div id="cepage-results" class="cepage-results"></div>
-      </div>
-      <input type="hidden" id="cepage" name="cepage" value="{{ cepage or '' }}">
-      <p class="cepage-selected" id="cepage-selected" style="display:none;">
-        🍇 <span id="cepage-nom"></span>
-        <button type="button" class="btn-clear" onclick="clearCepage()">✕</button>
-      </p>
-    </div>
+ <!-- ═══ Cépage avec auto-complétion ═══ -->
+ <div>
+ <label for="cepage-search">
+ Cépage principal 
+ <span class="info-tooltip" title="Le raisin principal utilisé pour ce vin (ex: Cabernet Sauvignon, Chardonnay). Recherchez dans les 777 cépages de VinoFYI."></span>
+ </label>
+ <div class="cepage-wrapper">
+ <input type="text" id="cepage-search" 
+ placeholder="Tapez pour chercher un cépage (ex: Cabernet, Chardonnay...)" 
+ autocomplete="off">
+ <div id="cepage-results" class="cepage-results"></div>
+ </div>
+ <input type="hidden" id="cepage" name="cepage" value="{{ cepage or '' }}">
+ <p class="cepage-selected" id="cepage-selected" style="display:none;">
+ <span id="cepage-nom"></span>
+ <button type="button" class="btn-clear" onclick="clearCepage()">x</button>
+ </p>
+ </div>
 
-    <div>
-      <label for="region">
-        Région 
-        <span class="info-tooltip" title="La région viticole (ex: Bordeaux, Bourgogne, Napa Valley, Barossa Valley)">ℹ️</span>
-        *
-      </label>
-      <input type="text" id="region" name="region" value="{{ region or '' }}" 
-             placeholder="Ex: Bordeaux, Bourgogne, Napa Valley..." required>
-    </div>
+ <div>
+ <label for="region">
+ Région 
+ <span class="info-tooltip" title="La région viticole (ex: Bordeaux, Bourgogne, Napa Valley, Barossa Valley)"></span>
+ *
+ </label>
+ <input type="text" id="region" name="region" value="{{ region or '' }}" 
+ placeholder="Ex: Bordeaux, Bourgogne, Napa Valley..." required>
+ </div>
 
-    <div class="photo-upload-section">
-      <label>Photo du vin</label>
-      <div class="photo-tabs">
-        <button type="button" class="photo-tab active" onclick="switchPhotoTab('upload')" id="tab-upload">
-          📁 Télécharger
-        </button>
-        <button type="button" class="photo-tab" onclick="switchPhotoTab('url')" id="tab-url">
-          🌐 URL
-        </button>
-      </div>
-      
-      <div id="photo-upload-panel" class="photo-panel active">
-        <input type="file" id="photo_file" name="photo_file" accept="image/jpeg,image/png,image/gif,image/webp" 
-               onchange="previewImage(this)">
-        <p class="photo-help">Formats acceptés : JPG, PNG, GIF, WebP — Max 5 Mo</p>
-        <div id="photo-preview-container" class="photo-preview" style="display:none;">
-          <img id="photo-preview" alt="Aperçu">
-          <button type="button" class="btn-clear-photo" onclick="clearPhoto()">✕ Supprimer</button>
-        </div>
-      </div>
-      
-      <div id="photo-url-panel" class="photo-panel" style="display:none;">
-        <input type="url" id="photo_url" name="photo_url" value="{{ photo_url or '' }}" 
-               placeholder="https://example.com/photo.jpg">
-      </div>
-    </div>
+ <div class="photo-upload-section">
+ <label>Photo du vin</label>
+ <div class="photo-tabs">
+ <button type="button" class="photo-tab active" onclick="switchPhotoTab('upload')" id="tab-upload">
+ Télécharger
+ </button>
+ <button type="button" class="photo-tab" onclick="switchPhotoTab('url')" id="tab-url">
+ URL
+ </button>
+ </div>
+ 
+ <div id="photo-upload-panel" class="photo-panel active">
+ <input type="file" id="photo_file" name="photo_file" accept="image/jpeg,image/png,image/gif,image/webp" 
+ onchange="previewImage(this)">
+ <p class="photo-help">Formats acceptés : JPG, PNG, GIF, WebP — Max 5 Mo</p>
+ <div id="photo-preview-container" class="photo-preview" style="display:none;">
+ <img id="photo-preview" alt="Aperçu">
+ <button type="button" class="btn-clear-photo" onclick="clearPhoto()">x Supprimer</button>
+ </div>
+ </div>
+ 
+ <div id="photo-url-panel" class="photo-panel" style="display:none;">
+ <input type="url" id="photo_url" name="photo_url" value="{{ photo_url or '' }}" 
+ placeholder="https://example.com/photo.jpg">
+ </div>
+ </div>
 
-    <div>
-      <label for="description">Description (optionnel)</label>
-      <textarea id="description" name="description" rows="4" 
-                placeholder="Notes de dégustation, accord mets-vins, caractéristiques du terroir...">{{ description or '' }}</textarea>
-    </div>
+ <div>
+ <label for="description">Description (optionnel)</label>
+ <textarea id="description" name="description" rows="4" 
+ placeholder="Notes de dégustation, accord mets-vins, caractéristiques du terroir...">{{ description or '' }}</textarea>
+ </div>
 
-    <!-- Accords mets-vins dynamiques -->
-    <div id="accords-section" class="accords-section" style="display:none;">
-      <h4>🍽️ Accords suggérés</h4>
-      <div id="accords-content" class="accords-content"></div>
-    </div>
+ <!-- Accords mets-vins dynamiques -->
+ <div id="accords-section" class="accords-section" style="display:none;">
+ <h4> Accords suggérés</h4>
+ <div id="accords-content" class="accords-content"></div>
+ </div>
 
-    <div class="form-actions">
-      <button type="submit">✅ Ajouter au catalogue</button>
-      <a href="{{ url_for('catalogue.vins') }}" class="btn btn-secondary">Annuler</a>
-    </div>
-  </form>
+ <div class="form-actions">
+ <button type="submit"> Ajouter au catalogue</button>
+ <a href="{{ url_for('catalogue.vins') }}" class="btn btn-secondary">Annuler</a>
+ </div>
+ </form>
 </div>
 
 <script>
@@ -145,86 +145,86 @@ const cepageResults = document.getElementById('cepage-results');
 let selectedCepage = null;
 
 cepageInput.addEventListener('input', function() {
-  const query = this.value.trim();
-  
-  if (cepageTimeout) clearTimeout(cepageTimeout);
-  
-  if (query.length < 2) {
-    cepageResults.innerHTML = '';
-    cepageResults.style.display = 'none';
-    return;
-  }
-  
-  cepageTimeout = setTimeout(() => {
-    searchCepages(query);
-  }, 300);
+ const query = this.value.trim();
+ 
+ if (cepageTimeout) clearTimeout(cepageTimeout);
+ 
+ if (query.length < 2) {
+ cepageResults.innerHTML = '';
+ cepageResults.style.display = 'none';
+ return;
+ }
+ 
+ cepageTimeout = setTimeout(() => {
+ searchCepages(query);
+ }, 300);
 });
 
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.cepage-wrapper')) {
-    cepageResults.style.display = 'none';
-  }
+ if (!e.target.closest('.cepage-wrapper')) {
+ cepageResults.style.display = 'none';
+ }
 });
 
 function searchCepages(query) {
-  fetch(`/catalogue/vins/recherche-cepages?q=${encodeURIComponent(query)}`)
-    .then(response => response.json())
-    .then(data => {
-      displayCepages(data.results || []);
-    })
-    .catch(err => {
-      console.error('Erreur recherche cépages:', err);
-    });
+ fetch(`/catalogue/vins/recherche-cepages?q=${encodeURIComponent(query)}`)
+ .then(response => response.json())
+ .then(data => {
+ displayCepages(data.results || []);
+ })
+ .catch(err => {
+ console.error('Erreur recherche cépages:', err);
+ });
 }
 
 function displayCepages(results) {
-  if (results.length === 0) {
-    cepageResults.innerHTML = '<div class="no-results">Aucun cépage trouvé.</div>';
-    cepageResults.style.display = 'block';
-    return;
-  }
-  
-  let html = '<ul class="cepage-list">';
-  results.slice(0, 10).forEach(grape => {
-    let colorIcon;
-    if (grape.color_fr === 'rouge') colorIcon = '🔴';
-    else if (grape.color_fr === 'blanc') colorIcon = '⚪';
-    else if (grape.color_fr === 'rosé') colorIcon = '🌸';
-    else colorIcon = '🍇';
-    html += `
-      <li class="cepage-item" data-slug="${grape.slug}" data-name="${escapeHtml(grape.name)}">
-        <span class="cepage-icon">${colorIcon}</span>
-        <span class="cepage-name">${escapeHtml(grape.name)}</span>
-      </li>
-    `;
-  });
-  html += '</ul>';
-  
-  cepageResults.innerHTML = html;
-  cepageResults.style.display = 'block';
-  
-  document.querySelectorAll('.cepage-item').forEach(item => {
-    item.addEventListener('click', function() {
-      selectCepage(this.dataset.name);
-    });
-  });
+ if (results.length === 0) {
+ cepageResults.innerHTML = '<div class="no-results">Aucun cépage trouvé.</div>';
+ cepageResults.style.display = 'block';
+ return;
+ }
+ 
+ let html = '<ul class="cepage-list">';
+ results.slice(0, 10).forEach(grape => {
+ let colorIcon;
+ if (grape.color_fr === 'rouge') colorIcon = '';
+ else if (grape.color_fr === 'blanc') colorIcon = '';
+ else if (grape.color_fr === 'rosé') colorIcon = '';
+ else colorIcon = '';
+ html += `
+ <li class="cepage-item" data-slug="${grape.slug}" data-name="${escapeHtml(grape.name)}">
+ <span class="cepage-icon">${colorIcon}</span>
+ <span class="cepage-name">${escapeHtml(grape.name)}</span>
+ </li>
+ `;
+ });
+ html += '</ul>';
+ 
+ cepageResults.innerHTML = html;
+ cepageResults.style.display = 'block';
+ 
+ document.querySelectorAll('.cepage-item').forEach(item => {
+ item.addEventListener('click', function() {
+ selectCepage(this.dataset.name);
+ });
+ });
 }
 
 function selectCepage(name) {
-  selectedCepage = name;
-  document.getElementById('cepage').value = name;
-  document.getElementById('cepage-search').value = '';
-  cepageResults.style.display = 'none';
-  
-  document.getElementById('cepage-nom').textContent = name;
-  document.getElementById('cepage-selected').style.display = 'block';
+ selectedCepage = name;
+ document.getElementById('cepage').value = name;
+ document.getElementById('cepage-search').value = '';
+ cepageResults.style.display = 'none';
+ 
+ document.getElementById('cepage-nom').textContent = name;
+ document.getElementById('cepage-selected').style.display = 'block';
 }
 
 function clearCepage() {
-  selectedCepage = null;
-  document.getElementById('cepage').value = '';
-  document.getElementById('cepage-selected').style.display = 'none';
-  document.getElementById('cepage-search').focus();
+ selectedCepage = null;
+ document.getElementById('cepage').value = '';
+ document.getElementById('cepage-selected').style.display = 'none';
+ document.getElementById('cepage-search').focus();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -232,56 +232,56 @@ function clearCepage() {
 // ═══════════════════════════════════════════════════════════════
 
 const accordsParType = {
-  'Rouge': {
-    description: 'Vins rouges aux tanins et fruits rouges/noirs',
-    accords: ['🥩 Viande rouge grillée', '🧀 Fromage affiné', '🍖 Gibier', '🍝 Plat en sauce']
-  },
-  'Blanc': {
-    description: 'Vins blancs frais et fruités',
-    accords: ['🐟 Poisson / fruits de mer', '🦪 Huîtres', '🥗 Salade', '🐔 Volaille']
-  },
-  'Rosé': {
-    description: 'Vins rosés légers et frais',
-    accords: ['🥗 Salade méditerranéenne', '🦐 Fruits de mer', '🍕 Pizza', '🌮 Tapas']
-  },
-  'Champagne': {
-    description: 'Bulles élégantes et festives',
-    accords: ['🦪 Huîtres', '🍤 Crevettes', '🧀 Fromage blanc', '🍓 Fruits rouges']
-  },
-  'Effervescent': {
-    description: 'Vins pétillants festifs',
-    accords: ['🍤 Apéritif', '🥗 Entrées légères', '🍰 Dessert fruité']
-  },
-  'Doux': {
-    description: 'Vins sucrés et onctueux',
-    accords: ['🍰 Dessert au chocolat', '🧀 Foie gras', '🫐 Tarte aux fruits', '🧀 Roquefort']
-  },
-  'Fortifié': {
-    description: 'Vins riches et alcoolisés',
-    accords: ['🍫 Chocolat noir', '🧀 Fromage bleu', '🥜 Noix / fruits secs', '🚬 Cigare']
-  }
+ 'Rouge': {
+ description: 'Vins rouges aux tanins et fruits rouges/noirs',
+ accords: [' Viande rouge grillée', ' Fromage affiné', ' Gibier', ' Plat en sauce']
+ },
+ 'Blanc': {
+ description: 'Vins blancs frais et fruités',
+ accords: [' Poisson / fruits de mer', ' Huîtres', ' Salade', ' Volaille']
+ },
+ 'Rosé': {
+ description: 'Vins rosés légers et frais',
+ accords: [' Salade méditerranéenne', ' Fruits de mer', ' Pizza', ' Tapas']
+ },
+ 'Champagne': {
+ description: 'Bulles élégantes et festives',
+ accords: [' Huîtres', ' Crevettes', ' Fromage blanc', ' Fruits rouges']
+ },
+ 'Effervescent': {
+ description: 'Vins pétillants festifs',
+ accords: [' Apéritif', ' Entrées légères', ' Dessert fruité']
+ },
+ 'Doux': {
+ description: 'Vins sucrés et onctueux',
+ accords: [' Dessert au chocolat', ' Foie gras', ' Tarte aux fruits', ' Roquefort']
+ },
+ 'Fortifié': {
+ description: 'Vins riches et alcoolisés',
+ accords: [' Chocolat noir', ' Fromage bleu', ' Noix / fruits secs', ' Cigare']
+ }
 };
 
 function chargerAccords() {
-  const type = document.getElementById('type_vin').value;
-  const section = document.getElementById('accords-section');
-  const content = document.getElementById('accords-content');
-  
-  if (!type || !accordsParType[type]) {
-    section.style.display = 'none';
-    return;
-  }
-  
-  const data = accordsParType[type];
-  let html = `<p class="accord-description">${data.description}</p>`;
-  html += '<div class="accords-list">';
-  data.accords.forEach(accord => {
-    html += `<span class="accord-tag">${accord}</span>`;
-  });
-  html += '</div>';
-  
-  content.innerHTML = html;
-  section.style.display = 'block';
+ const type = document.getElementById('type_vin').value;
+ const section = document.getElementById('accords-section');
+ const content = document.getElementById('accords-content');
+ 
+ if (!type || !accordsParType[type]) {
+ section.style.display = 'none';
+ return;
+ }
+ 
+ const data = accordsParType[type];
+ let html = `<p class="accord-description">${data.description}</p>`;
+ html += '<div class="accords-list">';
+ data.accords.forEach(accord => {
+ html += `<span class="accord-tag">${accord}</span>`;
+ });
+ html += '</div>';
+ 
+ content.innerHTML = html;
+ section.style.display = 'block';
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -289,22 +289,22 @@ function chargerAccords() {
 // ═══════════════════════════════════════════════════════════════
 
 function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+ const div = document.createElement('div');
+ div.textContent = text;
+ return div.innerHTML;
 }
 
 function flashMessage(message, type) {
-  const container = document.querySelector('.container');
-  const flash = document.createElement('div');
-  flash.className = `flash ${type}`;
-  flash.textContent = message;
-  flash.style.marginBottom = '1rem';
-  container.insertBefore(flash, container.firstChild);
-  
-  setTimeout(() => {
-    flash.remove();
-  }, 5000);
+ const container = document.querySelector('.container');
+ const flash = document.createElement('div');
+ flash.className = `flash ${type}`;
+ flash.textContent = message;
+ flash.style.marginBottom = '1rem';
+ container.insertBefore(flash, container.firstChild);
+ 
+ setTimeout(() => {
+ flash.remove();
+ }, 5000);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -312,270 +312,270 @@ function flashMessage(message, type) {
 // ═══════════════════════════════════════════════════════════════
 
 function switchPhotoTab(tab) {
-  // Mise à jour des boutons
-  document.querySelectorAll('.photo-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  
-  // Mise à jour des panneaux
-  document.querySelectorAll('.photo-panel').forEach(p => p.style.display = 'none');
-  document.getElementById('photo-' + tab + '-panel').style.display = 'block';
-  
-  // Reset l'autre champ
-  if (tab === 'upload') {
-    document.getElementById('photo_url').value = '';
-  } else {
-    clearPhoto();
-  }
+ // Mise à jour des boutons
+ document.querySelectorAll('.photo-tab').forEach(t => t.classList.remove('active'));
+ document.getElementById('tab-' + tab).classList.add('active');
+ 
+ // Mise à jour des panneaux
+ document.querySelectorAll('.photo-panel').forEach(p => p.style.display = 'none');
+ document.getElementById('photo-' + tab + '-panel').style.display = 'block';
+ 
+ // Reset l'autre champ
+ if (tab === 'upload') {
+ document.getElementById('photo_url').value = '';
+ } else {
+ clearPhoto();
+ }
 }
 
 function previewImage(input) {
-  const file = input.files[0];
-  if (!file) return;
-  
-  // Validation taille (5 Mo)
-  if (file.size > 5 * 1024 * 1024) {
-    alert('L\'image est trop grande. Maximum 5 Mo.');
-    input.value = '';
-    return;
-  }
-  
-  // Validation format
-  const formats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (!formats.includes(file.type)) {
-    alert('Format non supporté. Utilisez JPG, PNG, GIF ou WebP.');
-    input.value = '';
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const preview = document.getElementById('photo-preview');
-    preview.src = e.target.result;
-    document.getElementById('photo-preview-container').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
+ const file = input.files[0];
+ if (!file) return;
+ 
+ // Validation taille (5 Mo)
+ if (file.size > 5 * 1024 * 1024) {
+ alert('L\'image est trop grande. Maximum 5 Mo.');
+ input.value = '';
+ return;
+ }
+ 
+ // Validation format
+ const formats = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+ if (!formats.includes(file.type)) {
+ alert('Format non supporté. Utilisez JPG, PNG, GIF ou WebP.');
+ input.value = '';
+ return;
+ }
+ 
+ const reader = new FileReader();
+ reader.onload = function(e) {
+ const preview = document.getElementById('photo-preview');
+ preview.src = e.target.result;
+ document.getElementById('photo-preview-container').style.display = 'block';
+ };
+ reader.readAsDataURL(file);
 }
 
 function clearPhoto() {
-  document.getElementById('photo_file').value = '';
-  document.getElementById('photo-preview-container').style.display = 'none';
-  document.getElementById('photo-preview').src = '';
+ document.getElementById('photo_file').value = '';
+ document.getElementById('photo-preview-container').style.display = 'none';
+ document.getElementById('photo-preview').src = '';
 }
 
 // Initialiser les accords si un type est déjà sélectionné
 document.addEventListener('DOMContentLoaded', function() {
-  const typeSelect = document.getElementById('type_vin');
-  if (typeSelect.value) {
-    chargerAccords();
-  }
+ const typeSelect = document.getElementById('type_vin');
+ if (typeSelect.value) {
+ chargerAccords();
+ }
 });
 </script>
 
 <style>
-  .subtitle {
-    color: #666;
-    margin-top: -0.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* ─── Infobulles ─── */
-  .info-tooltip {
-    cursor: help;
-    font-size: 0.8rem;
-    opacity: 0.6;
-    transition: opacity 0.2s;
-  }
-  .info-tooltip:hover {
-    opacity: 1;
-  }
-  
-  /* ─── Cépages ─── */
-  .cepage-wrapper {
-    position: relative;
-  }
-  .cepage-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 1000;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-top: 4px;
-  }
-  .cepage-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .cepage-item {
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    transition: background 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .cepage-item:hover {
-    background: #fff5f5;
-  }
-  .cepage-icon {
-    font-size: 1.2rem;
-  }
-  .cepage-selected {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    background: #f0fff0;
-    border-radius: 6px;
-    color: #2e7d32;
-  }
-  .btn-clear {
-    background: none;
-    border: none;
-    color: var(--danger);
-    cursor: pointer;
-    font-weight: bold;
-    padding: 0 0.25rem;
-  }
-  
-  /* ─── Accords ─── */
-  .accords-section {
-    background: #fff8f0;
-    border-left: 4px solid #f9a825;
-    padding: 1rem;
-    margin: 1rem 0;
-    border-radius: 8px;
-  }
-  .accords-section h4 {
-    margin: 0 0 0.5rem 0;
-    color: #e65100;
-  }
-  .accord-description {
-    color: #666;
-    font-style: italic;
-    margin-bottom: 0.5rem;
-  }
-  .accords-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .accord-tag {
-    background: white;
-    border: 1px solid #f9a825;
-    padding: 0.3rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: #e65100;
-  }
-  
-  /* ─── Formulaire ─── */
-  .form-actions {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-  }
-  .btn-secondary {
-    background: #6c757d;
-  }
-  .btn-secondary:hover {
-    background: #5a6268;
-  }
-  select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 1rem;
-    background: white;
-  }
+ .subtitle {
+ color: #666;
+ margin-top: -0.5rem;
+ margin-bottom: 1.5rem;
+ }
+ 
+ /* ─── Infobulles ─── */
+ .info-tooltip {
+ cursor: help;
+ font-size: 0.8rem;
+ opacity: 0.6;
+ transition: opacity 0.2s;
+ }
+ .info-tooltip:hover {
+ opacity: 1;
+ }
+ 
+ /* ─── Cépages ─── */
+ .cepage-wrapper {
+ position: relative;
+ }
+ .cepage-results {
+ position: absolute;
+ top: 100%;
+ left: 0;
+ right: 0;
+ background: white;
+ border: 1px solid var(--border);
+ border-radius: 8px;
+ box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+ z-index: 1000;
+ max-height: 300px;
+ overflow-y: auto;
+ margin-top: 4px;
+ }
+ .cepage-list {
+ list-style: none;
+ margin: 0;
+ padding: 0;
+ }
+ .cepage-item {
+ padding: 0.6rem 1rem;
+ cursor: pointer;
+ border-bottom: 1px solid #f0f0f0;
+ transition: background 0.2s;
+ display: flex;
+ align-items: center;
+ gap: 0.5rem;
+ }
+ .cepage-item:hover {
+ background: #fff5f5;
+ }
+ .cepage-icon {
+ font-size: 1.2rem;
+ }
+ .cepage-selected {
+ display: flex;
+ align-items: center;
+ gap: 0.5rem;
+ margin-top: 0.5rem;
+ padding: 0.5rem;
+ background: #f0fff0;
+ border-radius: 6px;
+ color: #2e7d32;
+ }
+ .btn-clear {
+ background: none;
+ border: none;
+ color: var(--danger);
+ cursor: pointer;
+ font-weight: bold;
+ padding: 0 0.25rem;
+ }
+ 
+ /* ─── Accords ─── */
+ .accords-section {
+ background: #fff8f0;
+ border-left: 4px solid #f9a825;
+ padding: 1rem;
+ margin: 1rem 0;
+ border-radius: 8px;
+ }
+ .accords-section h4 {
+ margin: 0 0 0.5rem 0;
+ color: #e65100;
+ }
+ .accord-description {
+ color: #666;
+ font-style: italic;
+ margin-bottom: 0.5rem;
+ }
+ .accords-list {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 0.5rem;
+ }
+ .accord-tag {
+ background: white;
+ border: 1px solid #f9a825;
+ padding: 0.3rem 0.75rem;
+ border-radius: 20px;
+ font-size: 0.85rem;
+ color: #e65100;
+ }
+ 
+ /* ─── Formulaire ─── */
+ .form-actions {
+ margin-top: 1.5rem;
+ display: flex;
+ gap: 1rem;
+ align-items: center;
+ }
+ .btn-secondary {
+ background: #6c757d;
+ }
+ .btn-secondary:hover {
+ background: #5a6268;
+ }
+ select {
+ width: 100%;
+ padding: 0.5rem;
+ border: 1px solid var(--border);
+ border-radius: 4px;
+ font-size: 1rem;
+ background: white;
+ }
 
-  /* ─── Photo Upload ─── */
-  .photo-upload-section {
-    margin: 1rem 0;
-  }
-  .photo-upload-section label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
-  }
-  .photo-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border);
-  }
-  .photo-tab {
-    padding: 0.5rem 1rem;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 0.95rem;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
-  }
-  .photo-tab.active {
-    border-bottom-color: var(--primary);
-    color: var(--primary);
-    font-weight: 600;
-  }
-  .photo-tab:hover {
-    color: var(--primary);
-  }
-  .photo-panel {
-    padding: 0.75rem 0;
-  }
-  .photo-panel input[type="file"] {
-    width: 100%;
-    padding: 0.5rem;
-    border: 2px dashed var(--border);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: border-color 0.2s;
-  }
-  .photo-panel input[type="file"]:hover {
-    border-color: var(--primary);
-  }
-  .photo-help {
-    font-size: 0.8rem;
-    color: #888;
-    margin-top: 0.25rem;
-    margin-bottom: 0;
-  }
-  .photo-preview {
-    margin-top: 0.75rem;
-    text-align: center;
-  }
-  .photo-preview img {
-    max-width: 200px;
-    max-height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  .btn-clear-photo {
-    display: block;
-    margin: 0.5rem auto 0;
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 0.3rem 0.75rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-  }
-  .btn-clear-photo:hover {
-    background: #c62828;
-  }
+ /* ─── Photo Upload ─── */
+ .photo-upload-section {
+ margin: 1rem 0;
+ }
+ .photo-upload-section label {
+ display: block;
+ margin-bottom: 0.5rem;
+ font-weight: 600;
+ }
+ .photo-tabs {
+ display: flex;
+ gap: 0;
+ margin-bottom: 0.5rem;
+ border-bottom: 2px solid var(--border);
+ }
+ .photo-tab {
+ padding: 0.5rem 1rem;
+ border: none;
+ background: none;
+ cursor: pointer;
+ font-size: 0.95rem;
+ border-bottom: 2px solid transparent;
+ margin-bottom: -2px;
+ transition: all 0.2s;
+ }
+ .photo-tab.active {
+ border-bottom-color: var(--primary);
+ color: var(--primary);
+ font-weight: 600;
+ }
+ .photo-tab:hover {
+ color: var(--primary);
+ }
+ .photo-panel {
+ padding: 0.75rem 0;
+ }
+ .photo-panel input[type="file"] {
+ width: 100%;
+ padding: 0.5rem;
+ border: 2px dashed var(--border);
+ border-radius: 8px;
+ cursor: pointer;
+ transition: border-color 0.2s;
+ }
+ .photo-panel input[type="file"]:hover {
+ border-color: var(--primary);
+ }
+ .photo-help {
+ font-size: 0.8rem;
+ color: #888;
+ margin-top: 0.25rem;
+ margin-bottom: 0;
+ }
+ .photo-preview {
+ margin-top: 0.75rem;
+ text-align: center;
+ }
+ .photo-preview img {
+ max-width: 200px;
+ max-height: 200px;
+ object-fit: cover;
+ border-radius: 8px;
+ box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+ }
+ .btn-clear-photo {
+ display: block;
+ margin: 0.5rem auto 0;
+ background: var(--danger);
+ color: white;
+ border: none;
+ padding: 0.3rem 0.75rem;
+ border-radius: 4px;
+ cursor: pointer;
+ font-size: 0.85rem;
+ }
+ .btn-clear-photo:hover {
+ background: #c62828;
+ }
 </style>
 {% endblock %}

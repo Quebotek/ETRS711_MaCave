@@ -2,18 +2,18 @@
 {% block title %}Connexion — MaCave{% endblock %}
 {% block content %}
 <div class="card" style="max-width: 400px; margin: 3rem auto;">
-  <h2>Connexion</h2>
-  <form method="post">
-    <label for="username">Nom d'utilisateur</label>
-    <input name="username" id="username" required autofocus>
+ <h2>Connexion</h2>
+ <form method="post">
+ <label for="username">Nom d'utilisateur</label>
+ <input name="username" id="username" required autofocus>
 
-    <label for="password">Mot de passe</label>
-    <input type="password" name="password" id="password" required>
+ <label for="password">Mot de passe</label>
+ <input type="password" name="password" id="password" required>
 
-    <button type="submit" style="margin-top: 1rem; width: 100%;">Se connecter</button>
-  </form>
-  <p style="text-align: center; margin-top: 1rem;">
-    Pas encore de compte ? <a href="{{ url_for('auth.register') }}">S'inscrire</a>
-  </p>
+ <button type="submit" style="margin-top: 1rem; width: 100%;">Se connecter</button>
+ </form>
+ <p style="text-align: center; margin-top: 1rem;">
+ Pas encore de compte ? <a href="{{ url_for('auth.register') }}">S'inscrire</a>
+ </p>
 </div>
 {% endblock %}

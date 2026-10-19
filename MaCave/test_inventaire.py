@@ -24,30 +24,30 @@ with app.app_context():
         # Vérifier que les vins sont présents
         html = response.data.decode('utf-8')
         if "Château Montelena" in html:
-            print("✓ Château Montelena trouvé dans l'inventaire")
+            print(" Château Montelena trouvé dans l'inventaire")
         if "Mon Inventaire" in html:
-            print("✓ Page d'inventaire chargée correctement")
+            print(" Page d'inventaire chargée correctement")
         if "15.0" in html or "15,0" in html:
-            print("✓ Note moyenne affichée")
+            print(" Note moyenne affichée")
 
         # Tester le détail d'un vin
         response = client.get("/inventaire/vin/1")
         print(f"\nStatus détail vin: {response.status_code}")
         html = response.data.decode('utf-8')
         if "Château Montelena" in html:
-            print("✓ Page de détail du vin chargée")
+            print(" Page de détail du vin chargée")
         if "Note communautaire" in html:
-            print("✓ Section de notation présente")
+            print(" Section de notation présente")
 
         # Tester le catalogue
         response = client.get("/catalogue/vins")
         print(f"\nStatus catalogue: {response.status_code}")
         html = response.data.decode('utf-8')
         if "Catalogue des vins" in html:
-            print("✓ Page catalogue chargée")
+            print(" Page catalogue chargée")
         if "15.0" in html or "15,0" in html:
-            print("✓ Notes affichées dans le catalogue")
+            print(" Notes affichées dans le catalogue")
 
     db.close()
 
-print("\n✅ Tests terminés !")
+print("\n Tests terminés !")

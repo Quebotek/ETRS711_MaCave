@@ -2,187 +2,187 @@
 {% block title %}Mon Inventaire — MaCave{% endblock %}
 {% block content %}
 <div class="card">
-  <div class="header-with-action">
-    <h2>🍷 Mon Inventaire</h2>
-    <div class="action-buttons">
-      <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">➕ Ajouter des bouteilles</a>
-    </div>
-  </div>
+ <div class="header-with-action">
+ <h2> Mon Inventaire</h2>
+ <div class="action-buttons">
+ <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">+ Ajouter des bouteilles</a>
+ </div>
+ </div>
 
-  <!-- Filtres -->
-  <form method="GET" class="filtres-form" style="margin: 1.5rem 0;">
-    <div class="filtres-grid">
-      <div>
-        <label for="search">Recherche</label>
-        <input type="text" id="search" name="search"
-               placeholder="Domaine ou cuvée..."
-               value="{{ current_search }}">
-      </div>
-      <div>
-        <label for="type">Type de vin</label>
-        <select id="type" name="type">
-          <option value="">Tous les types</option>
-          {% for t in types %}
-          <option value="{{ t }}" {% if t == current_type %}selected{% endif %}>{{ t }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label for="region">Région</label>
-        <select id="region" name="region">
-          <option value="">Toutes les régions</option>
-          {% for r in regions %}
-          <option value="{{ r }}" {% if r == current_region %}selected{% endif %}>{{ r }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div style="display: flex; align-items: flex-end;">
-        <button type="submit" class="btn">Filtrer</button>
-        <a href="{{ url_for('inventaire.index') }}" class="btn" style="background: #666; margin-left: 0.5rem;">Réinitialiser</a>
-      </div>
-    </div>
-  </form>
+ <!-- Filtres -->
+ <form method="GET" class="filtres-form" style="margin: 1.5rem 0;">
+ <div class="filtres-grid">
+ <div>
+ <label for="search">Recherche</label>
+ <input type="text" id="search" name="search"
+ placeholder="Domaine ou cuvée..."
+ value="{{ current_search }}">
+ </div>
+ <div>
+ <label for="type">Type de vin</label>
+ <select id="type" name="type">
+ <option value="">Tous les types</option>
+ {% for t in types %}
+ <option value="{{ t }}" {% if t == current_type %}selected{% endif %}>{{ t }}</option>
+ {% endfor %}
+ </select>
+ </div>
+ <div>
+ <label for="region">Région</label>
+ <select id="region" name="region">
+ <option value="">Toutes les régions</option>
+ {% for r in regions %}
+ <option value="{{ r }}" {% if r == current_region %}selected{% endif %}>{{ r }}</option>
+ {% endfor %}
+ </select>
+ </div>
+ <div style="display: flex; align-items: flex-end;">
+ <button type="submit" class="btn">Filtrer</button>
+ <a href="{{ url_for('inventaire.index') }}" class="btn" style="background: #666; margin-left: 0.5rem;">Réinitialiser</a>
+ </div>
+ </div>
+ </form>
 
-  <!-- Résumé -->
-  <div class="inventory-summary">
-    <span class="badge">{{ vins|length }} référence{{ 's' if vins|length > 1 else '' }}</span>
-    {% set total_bouteilles = namespace(count=0) %}
-    {% for vin in vins %}
-      {% set total_bouteilles.count = total_bouteilles.count + vin.bouteilles|length %}
-    {% endfor %}
-    <span class="badge">{{ total_bouteilles.count }} bouteille{{ 's' if total_bouteilles.count > 1 else '' }}</span>
-  </div>
+ <!-- Résumé -->
+ <div class="inventory-summary">
+ <span class="badge">{{ vins|length }} référence{{ 's' if vins|length > 1 else '' }}</span>
+ {% set total_bouteilles = namespace(count=0) %}
+ {% for vin in vins %}
+ {% set total_bouteilles.count = total_bouteilles.count + vin.bouteilles|length %}
+ {% endfor %}
+ <span class="badge">{{ total_bouteilles.count }} bouteille{{ 's' if total_bouteilles.count > 1 else '' }}</span>
+ </div>
 </div>
 
 {% if vins %}
-  <div class="vins-grid">
-    {% for vin in vins %}
-    <div class="vin-card">
-      {% if vin.photo_url %}
-      <div class="vin-photo">
-        <img src="{% if vin.photo_url.startswith('http') %}{{ vin.photo_url }}{% else %}{{ url_for('static', filename=vin.photo_url) }}{% endif %}" 
-             alt="{{ vin.domaine }} {{ vin.cuvee }}" onerror="this.parentElement.style.display='none'">
-      </div>
-      {% endif %}
+ <div class="vins-grid">
+ {% for vin in vins %}
+ <div class="vin-card">
+ {% if vin.photo_url %}
+ <div class="vin-photo">
+ <img src="{% if vin.photo_url.startswith('http') %}{{ vin.photo_url }}{% else %}{{ url_for('static', filename=vin.photo_url) }}{% endif %}" 
+ alt="{{ vin.domaine }} {{ vin.cuvee }}" onerror="this.parentElement.style.display='none'">
+ </div>
+ {% endif %}
 
-      <div class="vin-info">
-        <div class="vin-header">
-          <h3>{{ vin.domaine }}</h3>
-          <span class="note-badge {% if vin.note_moyenne != 'Non évalué' %}note-good{% endif %}">
-            {{ vin.note_moyenne }}
-          </span>
-        </div>
+ <div class="vin-info">
+ <div class="vin-header">
+ <h3>{{ vin.domaine }}</h3>
+ <span class="note-badge {% if vin.note_moyenne != 'Non évalué' %}note-good{% endif %}">
+ {{ vin.note_moyenne }}
+ </span>
+ </div>
 
-        <p class="cuvee">{{ vin.cuvee }}</p>
+ <p class="cuvee">{{ vin.cuvee }}</p>
 
-        <div class="vin-meta">
-          <span class="meta-item">📅 {{ vin.millesime }}</span>
-          <span class="meta-item">📍 {{ vin.region }}</span>
-          <span class="meta-item">🍇 {{ vin.type_vin }}</span>
-        </div>
+ <div class="vin-meta">
+ <span class="meta-item"> {{ vin.millesime }}</span>
+ <span class="meta-item"> {{ vin.region }}</span>
+ <span class="meta-item"> {{ vin.type_vin }}</span>
+ </div>
 
-        <div class="vin-stock">
-          <strong>{{ vin.bouteilles|length }} bouteille{{ 's' if vin.bouteilles|length > 1 else '' }}</strong>
-          <ul class="bouteilles-list">
-            {% for b in vin.bouteilles %}
-            <li>
-              <span class="b-etagere">📦 {{ b.etagere_nom }}</span>
-              <span class="b-prix">{{ b.prix_achat }} €</span>
-              <div class="b-actions">
-                <button class="btn-link" onclick="showDeplacerModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')">Déplacer</button>
-                <button class="btn-link btn-archiver" onclick="showArchiverModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')" title="Archiver après dégustation">Archiver</button>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
+ <div class="vin-stock">
+ <strong>{{ vin.bouteilles|length }} bouteille{{ 's' if vin.bouteilles|length > 1 else '' }}</strong>
+ <ul class="bouteilles-list">
+ {% for b in vin.bouteilles %}
+ <li>
+ <span class="b-etagere"> {{ b.etagere_nom }}</span>
+ <span class="b-prix">{{ b.prix_achat }} €</span>
+ <div class="b-actions">
+ <button class="btn-link" onclick="showDeplacerModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')">Déplacer</button>
+ <button class="btn-link btn-archiver" onclick="showArchiverModal({{ b.id }}, '{{ vin.domaine }} {{ vin.cuvee }} {{ vin.millesime }}')" title="Archiver après dégustation">Archiver</button>
+ </div>
+ </li>
+ {% endfor %}
+ </ul>
+ </div>
 
-        <div class="vin-actions">
-          <a href="{{ url_for('inventaire.detail_vin', vin_id=vin.id) }}" class="btn btn-sm">Voir détails</a>
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
+ <div class="vin-actions">
+ <a href="{{ url_for('inventaire.detail_vin', vin_id=vin.id) }}" class="btn btn-sm">Voir détails</a>
+ </div>
+ </div>
+ </div>
+ {% endfor %}
+ </div>
 {% else %}
-  <div class="empty-state">
-    <p>🍾 Votre inventaire est vide.</p>
-    <p>Vous pouvez ajouter des bouteilles à votre cave ou consulter le catalogue pour découvrir de nouveaux vins.</p>
-    <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: center;">
-      <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">➕ Ajouter des bouteilles</a>
-      <a href="{{ url_for('catalogue.vins') }}" class="btn" style="background: #6c757d;">🍷 Voir le catalogue</a>
-    </div>
-  </div>
+ <div class="empty-state">
+ <p> Votre inventaire est vide.</p>
+ <p>Vous pouvez ajouter des bouteilles à votre cave ou consulter le catalogue pour découvrir de nouveaux vins.</p>
+ <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: center;">
+ <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">+ Ajouter des bouteilles</a>
+ <a href="{{ url_for('catalogue.vins') }}" class="btn" style="background: #6c757d;"> Voir le catalogue</a>
+ </div>
+ </div>
 {% endif %}
 
 <!-- ===== MODALS ===== -->
 
 <!-- Modal de déplacement -->
 <div id="deplacerModal" class="modal">
-  <div class="modal-content modal-small">
-    <span class="modal-close" onclick="hideDeplacerModal()">&times;</span>
-    <h3>Déplacer la bouteille</h3>
-    <p id="modalVinNomDeplacer" style="color: var(--primary); font-weight: bold;"></p>
-    <form id="deplacerForm" method="POST">
-      <div class="form-group">
-        <label for="etagere_id">Nouvelle étagère</label>
-        <select id="etagere_id" name="etagere_id" required>
-          {% for e in etageres %}
-          <option value="{{ e.id }}">{{ e.nom }} ({{ e.places_libres }} place{{ 's' if e.places_libres > 1 else '' }} libre{{ 's' if e.places_libres > 1 else '' }})</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn" onclick="hideDeplacerModal()" style="background: #666;">Annuler</button>
-        <button type="submit" class="btn">Déplacer</button>
-      </div>
-    </form>
-  </div>
+ <div class="modal-content modal-small">
+ <span class="modal-close" onclick="hideDeplacerModal()">&times;</span>
+ <h3>Déplacer la bouteille</h3>
+ <p id="modalVinNomDeplacer" style="color: var(--primary); font-weight: bold;"></p>
+ <form id="deplacerForm" method="POST">
+ <div class="form-group">
+ <label for="etagere_id">Nouvelle étagère</label>
+ <select id="etagere_id" name="etagere_id" required>
+ {% for e in etageres %}
+ <option value="{{ e.id }}">{{ e.nom }} ({{ e.places_libres }} place{{ 's' if e.places_libres > 1 else '' }} libre{{ 's' if e.places_libres > 1 else '' }})</option>
+ {% endfor %}
+ </select>
+ </div>
+ <div class="modal-actions">
+ <button type="button" class="btn" onclick="hideDeplacerModal()" style="background: #666;">Annuler</button>
+ <button type="submit" class="btn">Déplacer</button>
+ </div>
+ </form>
+ </div>
 </div>
 
 <!-- Modal d'archivage -->
 <div id="archiverModal" class="modal">
-  <div class="modal-content">
-    <span class="modal-close" onclick="hideArchiverModal()">&times;</span>
-    <h3>🍷 Archiver une bouteille</h3>
-    <p id="modalVinNom" style="color: var(--primary); font-weight: bold;"></p>
+ <div class="modal-content">
+ <span class="modal-close" onclick="hideArchiverModal()">&times;</span>
+ <h3> Archiver une bouteille</h3>
+ <p id="modalVinNom" style="color: var(--primary); font-weight: bold;"></p>
 
-    <form id="archiverForm" method="POST">
-      <div class="form-group">
-        <label for="note">Note (0-20)</label>
-        <input type="number" id="note" name="note" min="0" max="20" value="10" required>
-        <div class="note-help">0 = Très mauvais, 10 = Moyen, 20 = Exceptionnel</div>
-      </div>
+ <form id="archiverForm" method="POST">
+ <div class="form-group">
+ <label for="note">Note (0-20)</label>
+ <input type="number" id="note" name="note" min="0" max="20" value="10" required>
+ <div class="note-help">0 = Très mauvais, 10 = Moyen, 20 = Exceptionnel</div>
+ </div>
 
-      <div class="form-group">
-        <label for="commentaire">Commentaire de dégustation</label>
-        <textarea id="commentaire" name="commentaire" rows="4"
-                  placeholder="Décrivez votre expérience (arômes, couleur, accord mets...)"></textarea>
-      </div>
+ <div class="form-group">
+ <label for="commentaire">Commentaire de dégustation</label>
+ <textarea id="commentaire" name="commentaire" rows="4"
+ placeholder="Décrivez votre expérience (arômes, couleur, accord mets...)"></textarea>
+ </div>
 
-      <div class="modal-actions">
-        <button type="button" class="btn" onclick="hideArchiverModal()" style="background: #666;">Annuler</button>
-        <button type="submit" class="btn">Archiver et évaluer</button>
-      </div>
-    </form>
-  </div>
+ <div class="modal-actions">
+ <button type="button" class="btn" onclick="hideArchiverModal()" style="background: #666;">Annuler</button>
+ <button type="submit" class="btn">Archiver et évaluer</button>
+ </div>
+ </form>
+ </div>
 </div>
 
 <style>
 .header-with-action {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ flex-wrap: wrap;
+ gap: 1rem;
 }
 .header-with-action h2 { margin: 0; }
 .action-buttons { display: flex; gap: 0.5rem; }
 
 .filtres-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+ display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+ gap: 1rem;
 }
 
 .inventory-summary { margin-top: 1rem; display: flex; gap: 0.5rem; }
@@ -191,11 +191,11 @@
 .vins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
 
 .vin-card {
-  background: var(--card);
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+ background: var(--card);
+ border-radius: 12px;
+ box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+ overflow: hidden;
+ transition: transform 0.2s, box-shadow 0.2s;
 }
 .vin-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
 
@@ -238,28 +238,28 @@
 
 /* ---------- Modals ---------- */
 .modal {
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  display: none;               /* ← caché par défaut */
-  align-items: center;
-  justify-content: center;
+ position: fixed;
+ z-index: 1000;
+ left: 0;
+ top: 0;
+ width: 100%;
+ height: 100%;
+ background: rgba(0,0,0,0.5);
+ display: none; /* ← caché par défaut */
+ align-items: center;
+ justify-content: center;
 }
 .modal.visible { display: flex; }
 
 .modal-content {
-  background: var(--card);
-  padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px;
-  width: 90%;
-  position: relative;
-  max-height: 90vh;
-  overflow-y: auto;
+ background: var(--card);
+ padding: 2rem;
+ border-radius: 12px;
+ max-width: 500px;
+ width: 90%;
+ position: relative;
+ max-height: 90vh;
+ overflow-y: auto;
 }
 .modal-small { max-width: 400px; }
 
@@ -277,28 +277,28 @@
 <script>
 /* Affiche le modal de déplacement */
 function showDeplacerModal(bouteilleId, vinNom) {
-  document.getElementById('modalVinNomDeplacer').textContent = vinNom;
-  document.getElementById('deplacerForm').action = '/inventaire/bouteille/' + bouteilleId + '/deplacer';
-  document.getElementById('deplacerModal').classList.add('visible');
+ document.getElementById('modalVinNomDeplacer').textContent = vinNom;
+ document.getElementById('deplacerForm').action = '/inventaire/bouteille/' + bouteilleId + '/deplacer';
+ document.getElementById('deplacerModal').classList.add('visible');
 }
 function hideDeplacerModal() {
-  document.getElementById('deplacerModal').classList.remove('visible');
+ document.getElementById('deplacerModal').classList.remove('visible');
 }
 
 function showArchiverModal(bouteilleId, vinNom) {
-  document.getElementById('modalVinNom').textContent = vinNom;
-  document.getElementById('archiverForm').action = '/inventaire/bouteille/' + bouteilleId + '/archiver';
-  document.getElementById('archiverModal').classList.add('visible');
+ document.getElementById('modalVinNom').textContent = vinNom;
+ document.getElementById('archiverForm').action = '/inventaire/bouteille/' + bouteilleId + '/archiver';
+ document.getElementById('archiverModal').classList.add('visible');
 }
 function hideArchiverModal() {
-  document.getElementById('archiverModal').classList.remove('visible');
+ document.getElementById('archiverModal').classList.remove('visible');
 }
 
 // Fermer les modals en cliquant dehors
 window.onclick = function(event) {
-  if (event.target.classList.contains('modal')) {
-    event.target.classList.remove('visible');
-  }
+ if (event.target.classList.contains('modal')) {
+ event.target.classList.remove('visible');
+ }
 }
 </script>
 {% endblock %}

@@ -1,4 +1,4 @@
-# 🍷 MaCave - Nouvelles Fonctionnalités d'Interface Web
+#  MaCave - Nouvelles Fonctionnalités d'Interface Web
 
 ## Vue d'ensemble
 
@@ -6,7 +6,7 @@ Cette mise à jour apporte une **interface web enrichie** pour la gestion de l'i
 
 ---
 
-## 🎯 Fonctionnalités Ajoutées
+##  Fonctionnalités Ajoutées
 
 ### 1. **Page d'Inventaire Avancée** (`/inventaire/`)
 
@@ -35,14 +35,14 @@ Une vue complète de toutes vos bouteilles avec :
 
 Une fiche complète pour chaque vin avec :
 
-#### 📋 Informations du vin
+####  Informations du vin
 - Photo du vin (si disponible)
 - Domaine et cuvée
 - Millésime, région et type
 - Description détaillée
 - **Note communautaire en grand** (0-20)
 
-#### 🍾 Gestion de vos bouteilles
+####  Gestion de vos bouteilles
 - Tableau de toutes vos bouteilles (en stock et archivées)
 - Statut clair (En stock / Archivée)
 - Localisation sur les étagères
@@ -52,7 +52,7 @@ Une fiche complète pour chaque vin avec :
 - **Déplacer** : change une bouteille d'étagère via modal
 - **Archiver** : archive avec évaluation après dégustation
 
-#### 💬 Système de notation communautaire
+####  Système de notation communautaire
 - **Toutes les évaluations** des utilisateurs
 - Notes et commentaires de dégustation
 - Dates et auteurs des évaluations
@@ -75,26 +75,26 @@ Le catalogue communautaire affiche maintenant :
 
 ### 4. **Système de Notation Complet**
 
-#### 📊 Calcul des notes
+####  Calcul des notes
 - **Moyenne arithmétique** de toutes les évaluations (Règle R9)
 - Affichage "Non évalué" si aucune évaluation (Règle R10)
 - Notes de 0 à 20 avec précision décimale
 
-#### ✍️ Enregistrement d'une évaluation
+####  Enregistrement d'une évaluation
 Lors de l'archivage d'une bouteille :
 1. Cliquez sur "Archiver"
 2. Saisissez votre note (0-20)
 3. Ajoutez un commentaire de dégustation
 4. Validez → la bouteille est archivée et l'évaluation enregistrée
 
-#### 🔄 Modification d'évaluation
+####  Modification d'évaluation
 - Seul l'**auteur** peut modifier son évaluation (Règle R12)
 - Accès via la page de détail du vin
 - Modification de la note et/ou du commentaire
 
 ---
 
-## 🎨 Interface Utilisateur
+##  Interface Utilisateur
 
 ### Design amélioré
 - **Navigation sticky** : la barre de navigation reste visible
@@ -111,7 +111,7 @@ Lors de l'archivage d'une bouteille :
 
 ---
 
-## 📁 Nouveaux Fichiers
+##  Nouveaux Fichiers
 
 ### Routes
 - `src/macave/routes/inventaire_routes.py` : Routes de l'inventaire et du système de notation
@@ -128,7 +128,7 @@ Lors de l'archivage d'une bouteille :
 
 ---
 
-## 🚀 Utilisation
+##  Utilisation
 
 ### Accéder à l'inventaire
 1. Connectez-vous avec votre compte
@@ -154,7 +154,7 @@ Lors de l'archivage d'une bouteille :
 
 ---
 
-## 🧪 Tests
+##  Tests
 
 Un script de test est inclus pour vérifier les nouvelles fonctionnalités :
 
@@ -164,15 +164,15 @@ uv run python test_inventaire.py
 ```
 
 Ce script vérifie :
-- ✓ Chargement de la page d'inventaire
-- ✓ Affichage des vins et des notes
-- ✓ Page de détail des vins
-- ✓ Section de notation
-- ✓ Catalogue avec notes
+-  Chargement de la page d'inventaire
+-  Affichage des vins et des notes
+-  Page de détail des vins
+-  Section de notation
+-  Catalogue avec notes
 
 ---
 
-## 📋 Règles Métier Respectées
+##  Règles Métier Respectées
 
 Les nouvelles fonctionnalités respectent les règles du README :
 
@@ -186,7 +186,7 @@ Les nouvelles fonctionnalités respectent les règles du README :
 
 ---
 
-## 💡 Perspectives d'Évolution
+##  Perspectives d'Évolution
 
 Comme mentionné dans le README :
 - Export CSV/PDF de l'inventaire personnel

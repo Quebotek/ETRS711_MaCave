@@ -1,8 +1,8 @@
-# 🍷 MaCave - Documentation Technique
+#  MaCave - Documentation Technique
 
 Documentation technique détaillée du projet MaCave.
 
-> 📖 **Pour la documentation générale et l'installation**, consultez le [README principal](../README.md) à la racine du dépôt.
+>  **Pour la documentation générale et l'installation**, consultez le [README principal](../README.md) à la racine du dépôt.
 
 ---
 
@@ -103,11 +103,11 @@ uv run python test_inventaire.py
 ```
 
 Ce script vérifie :
-- ✓ Chargement de la page d'inventaire
-- ✓ Affichage des vins et des notes
-- ✓ Page de détail des vins
-- ✓ Section de notation
-- ✓ Catalogue avec notes
+-  Chargement de la page d'inventaire
+-  Affichage des vins et des notes
+-  Page de détail des vins
+-  Section de notation
+-  Catalogue avec notes
 
 ### Tests Existant
 
