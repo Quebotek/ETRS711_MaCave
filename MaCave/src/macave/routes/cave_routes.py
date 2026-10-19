@@ -88,6 +88,116 @@ def ajouter_etagere():
     return redirect(url_for("cave.etageres"))
 
 
+@bp.route("/bouteilles/ajouter", methods=("GET", "POST"))
+def ajouter_bouteilles():
+    """Ajout d'un lot de bouteilles dans la cave."""
+    cave_id = _get_cave_id()
+    if cave_id is None:
+        flash("Aucune cave trouvée.", "warning")
+        return redirect(url_for("auth.login"))
+
+    # Vins disponibles dans le catalogue
+    vins = g.db.execute(
+        "SELECT id, domaine, cuvee, type_vin, millesime, region "
+        "FROM vins ORDER BY domaine, cuvee, millesime DESC"
+    ).fetchall()
+
+    # Étagères de la cave avec occupation
+    etageres_rows = g.db.execute(
+        "SELECT e.id, e.nom, e.capacite_max, "
+        "(SELECT COUNT(*) FROM bouteilles b "
+        " WHERE b.etagere_id = e.id AND b.statut = 'en_stock') as occ "
+        "FROM etageres e WHERE e.cave_id = ?",
+        (cave_id,),
+    ).fetchall()
+
+    etageres = []
+    for r in etageres_rows:
+        etageres.append({
+            "id": r["id"],
+            "nom": r["nom"],
+            "capacite_max": r["capacite_max"],
+            "places_libres": r["capacite_max"] - r["occ"],
+        })
+
+    if not etageres:
+        flash("Vous devez d'abord créer une étagère pour stocker des bouteilles.", "warning")
+        return redirect(url_for("cave.etageres"))
+
+    if request.method == "POST":
+        vin_id = request.form.get("vin_id", "").strip()
+        etagere_id = request.form.get("etagere_id", "").strip()
+        prix = request.form.get("prix", "").strip()
+        quantite = request.form.get("quantite", "").strip()
+
+        erreurs = []
+        if not vin_id:
+            erreurs.append("Veuillez sélectionner un vin.")
+        if not etagere_id:
+            erreurs.append("Veuillez sélectionner une étagère.")
+        if not quantite:
+            erreurs.append("La quantité est obligatoire.")
+        else:
+            try:
+                q = int(quantite)
+                if q < 1:
+                    erreurs.append("La quantité doit être d'au moins 1.")
+            except ValueError:
+                erreurs.append("La quantité doit être un nombre entier.")
+        if prix:
+            try:
+                float(prix)
+            except ValueError:
+                erreurs.append("Le prix doit être un nombre valide.")
+
+        if erreurs:
+            for e in erreurs:
+                flash(e, "danger")
+            return render_template(
+                "cave/ajouter_bouteilles.html",
+                vins=vins,
+                etageres=etageres,
+                vin_id=vin_id,
+                etagere_id=etagere_id,
+                prix=prix,
+                quantite=quantite,
+            )
+
+        prix_val = float(prix) if prix else 0.0
+        q = int(quantite)
+
+        lot = stock_service.add_bouteilles_lot(
+            cave_id=cave_id,
+            vin_id=int(vin_id),
+            etagere_id=int(etagere_id),
+            prix_achat=prix_val,
+            quantite=q,
+            conn=g.db,
+        )
+
+        if lot is None:
+            flash("Capacité de l'étagère insuffisante pour ce lot.", "danger")
+            return render_template(
+                "cave/ajouter_bouteilles.html",
+                vins=vins,
+                etageres=etageres,
+                vin_id=vin_id,
+                etagere_id=etagere_id,
+                prix=prix,
+                quantite=quantite,
+            )
+
+        g.db.commit()
+        flash(f"{len(lot)} bouteille(s) ajoutée(s) avec succès !", "success")
+        return redirect(url_for("cave.dashboard"))
+
+    return render_template(
+        "cave/ajouter_bouteilles.html",
+        vins=vins,
+        etageres=etageres,
+    )
+
+
 @bp.route("/etageres/supprimer/<int:etagere_id>", methods=("POST",))
 def supprimer_etagere(etagere_id):
     """Suppression d'une étagère vide."""
