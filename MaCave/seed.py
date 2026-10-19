@@ -74,6 +74,38 @@ def main() -> None:
         print(f"Vin existant : Château Montelena 1973 (id={vin_id})")
 
     # ------------------------------------------------------------------
+    # 1b. Vin avec image : Château Margaux 2015
+    # ------------------------------------------------------------------
+    vin2_id = _get_vin_id(conn, "Château Margaux", 2015)
+    if vin2_id is None:
+        cursor = conn.execute(
+            (
+                "INSERT INTO vins "
+                "(domaine, cuvee, type_vin, millesime, region, description, photo_url) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)"
+            ),
+            (
+                "Château Margaux",
+                "Grand Vin",
+                "Rouge",
+                2015,
+                "Bordeaux",
+                "Premier Grand Cru Classé de Margaux. "
+                "Un vin d'une élégance et d'une complexité exceptionnelles.",
+                "uploads/vins/demo_vin.jpg",
+            ),
+        )
+        vin2_id = cursor.lastrowid
+        print(f"Vin créé : Château Margaux 2015 avec image (id={vin2_id})")
+    else:
+        # Mettre à jour l'image si le vin existe déjà
+        conn.execute(
+            "UPDATE vins SET photo_url = ? WHERE id = ?",
+            ("uploads/vins/demo_vin.jpg", vin2_id)
+        )
+        print(f"Vin existant : Château Margaux 2015 (id={vin2_id}) — image mise à jour")
+
+    # ------------------------------------------------------------------
     # 2. Compte ALICE
     # ------------------------------------------------------------------
     alice_id = _get_user_id(conn, "alice")
@@ -118,13 +150,20 @@ def main() -> None:
     ).fetchone()["cnt"]
 
     if alice_stock == 0:
-        # 6 exemplaires : 5 resteront en stock, 1 sera archivée
+        # 6 exemplaires du vin Montelena : 5 resteront en stock, 1 sera archivée
         lot_alice = stock_service.add_bouteilles_lot(
             cave_alice_id, vin_id, bordeaux_id, 45.0, 6, conn
         )
         if lot_alice is None:
             raise RuntimeError("Impossible d'ajouter les bouteilles d'alice")
         print(f"Ajout de {len(lot_alice)} bouteilles pour alice sur Bordeaux")
+
+        # Ajouter 3 bouteilles du Margaux 2015
+        lot_margaux = stock_service.add_bouteilles_lot(
+            cave_alice_id, vin2_id, bourgogne_id, 385.0, 3, conn
+        )
+        if lot_margaux:
+            print(f"Ajout de {len(lot_margaux)} bouteilles Margaux pour alice")
 
         # Archiver la première bouteille avec note 16
         bouteille_archive = lot_alice[0]
@@ -172,13 +211,20 @@ def main() -> None:
     ).fetchone()["cnt"]
 
     if bob_stock == 0:
-        # 3 exemplaires : 2 resteront en stock, 1 sera archivée avec note 14
+        # 3 exemplaires du vin Montelena : 2 resteront en stock, 1 sera archivée avec note 14
         lot_bob = stock_service.add_bouteilles_lot(
             cave_bob_id, vin_id, cave_princ_id, 45.0, 3, conn
         )
         if lot_bob is None:
             raise RuntimeError("Impossible d'ajouter les bouteilles de bob")
         print(f"Ajout de {len(lot_bob)} bouteilles pour bob sur Cave Principale")
+
+        # Ajouter 1 bouteille du Margaux 2015
+        lot_margaux_bob = stock_service.add_bouteilles_lot(
+            cave_bob_id, vin2_id, cave_princ_id, 385.0, 1, conn
+        )
+        if lot_margaux_bob:
+            print(f"Ajout de {len(lot_margaux_bob)} bouteille Margaux pour bob")
 
         # Archiver la première bouteille avec note 14
         bouteille_archive = lot_bob[0]
@@ -192,13 +238,19 @@ def main() -> None:
         print(f"Bob a déjà {bob_stock} bouteille(s) en stock — ignoré.")
 
     # ------------------------------------------------------------------
-    # 4. Vérification finale : note moyenne communautaire
+    # 4. Vérification finale : notes moyennes
     # ------------------------------------------------------------------
-    moyenne = stock_service.get_vin_moyenne(vin_id, conn)
-    if moyenne is not None:
-        print(f"\nNote moyenne communautaire sur Château Montelena : {moyenne:.1f} / 20")
+    moyenne1 = stock_service.get_vin_moyenne(vin_id, conn)
+    if moyenne1 is not None:
+        print(f"\nNote moyenne communautaire Château Montelena : {moyenne1:.1f} / 20")
     else:
-        print("\nAucune évaluation pour le moment.")
+        print("\nAucune évaluation pour Château Montelena.")
+
+    moyenne2 = stock_service.get_vin_moyenne(vin2_id, conn)
+    if moyenne2 is not None:
+        print(f"Note moyenne communautaire Château Margaux : {moyenne2:.1f} / 20")
+    else:
+        print("Aucune évaluation pour Château Margaux.")
 
     conn.commit()
     conn.close()
