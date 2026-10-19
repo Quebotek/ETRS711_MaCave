@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from macave.models import Bouteille, Etagere, Evaluation
+from macave.models import Bouteille, Etagere, Evaluation, Vin
 
 
 def create_etagere(
@@ -230,3 +230,45 @@ def get_vin_moyenne(vin_id: int, conn: sqlite3.Connection) -> float | None:
     if row["cnt"] == 0:
         return None
     return row["moy"]
+
+
+def create_vin(
+    domaine: str,
+    cuvee: str,
+    type_vin: str,
+    millesime: int,
+    region: str,
+    description: str,
+    photo_url: str,
+    conn: sqlite3.Connection,
+) -> Vin | None:
+    """Crée une nouvelle référence de vin dans le catalogue.
+
+    Vérifie qu'il n'existe pas déjà un vin identique
+    (même domaine + cuvée + millésime).
+
+    Returns:
+        Le vin créé ou None si le vin existe déjà.
+    """
+    existing = conn.execute(
+        "SELECT id FROM vins WHERE domaine = ? AND cuvee = ? AND millesime = ?",
+        (domaine, cuvee, millesime),
+    ).fetchone()
+    if existing:
+        return None
+
+    cursor = conn.execute(
+        "INSERT INTO vins (domaine, cuvee, type_vin, millesime, region, description, photo_url) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (domaine, cuvee, type_vin, millesime, region, description, photo_url),
+    )
+    return Vin(
+        id=cursor.lastrowid,
+        domaine=domaine,
+        cuvee=cuvee,
+        type_vin=type_vin,
+        millesime=millesime,
+        region=region,
+        description=description,
+        photo_url=photo_url,
+    )
