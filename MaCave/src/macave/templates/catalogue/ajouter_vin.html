@@ -19,16 +19,54 @@
 
   <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
 
+  <!-- ═══ Assistant Style (pour débutants) ═══ -->
+  <div class="assistant-toggle">
+    <button type="button" class="btn-assistant" id="btn-assistant" onclick="toggleAssistant()">
+      💡 Besoin d'aide pour choisir ? Voir l'assistant
+    </button>
+  </div>
+
+  <div id="assistant-panel" class="assistant-panel" style="display:none;">
+    <h3>🎯 Assistant de choix</h3>
+    <p class="assistant-intro">Sélectionnez un style de vin pour voir ses caractéristiques et accords suggérés :</p>
+    
+    <div class="styles-grid" id="styles-grid">
+      <div class="styles-loading">Chargement des styles...</div>
+    </div>
+    
+    <div id="style-detail" class="style-detail" style="display:none;">
+      <h4 id="style-nom"></h4>
+      <p id="style-description"></p>
+      <div class="style-meta">
+        <span id="style-temperature"></span>
+        <span id="style-verre"></span>
+      </div>
+      <button type="button" class="btn-apply-style" onclick="appliquerStyle()">
+        Utiliser ce style
+      </button>
+    </div>
+  </div>
+
+  <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border);">
+
   <!-- ═══ Formulaire ═══ -->
   <form method="post" action="{{ url_for('catalogue.ajouter_vin') }}" id="form-vin">
     <div class="grid-2">
       <div>
-        <label for="domaine">Domaine *</label>
+        <label for="domaine">
+          Domaine 
+          <span class="info-tooltip" title="Le domaine ou producteur du vin (ex: Château Margaux, Domaine de la Romanée-Conti)">ℹ️</span>
+          *
+        </label>
         <input type="text" id="domaine" name="domaine" value="{{ domaine or '' }}" 
                placeholder="Ex: Château Margaux" required>
       </div>
       <div>
-        <label for="cuvee">Cuvée *</label>
+        <label for="cuvee">
+          Cuvée 
+          <span class="info-tooltip" title="Le nom spécifique du vin (ex: Grand Vin, Cuvée Spéciale, ou le nom du vin lui-même)">ℹ️</span>
+          *
+        </label>
         <input type="text" id="cuvee" name="cuvee" value="{{ cuvee or '' }}" 
                placeholder="Ex: Grand Vin" required>
       </div>
@@ -36,8 +74,12 @@
 
     <div class="grid-2">
       <div>
-        <label for="type_vin">Type de vin *</label>
-        <select id="type_vin" name="type_vin" required>
+        <label for="type_vin">
+          Type de vin 
+          <span class="info-tooltip" title="Le style général du vin. Pour plus de détails, utilisez l'assistant ci-dessus.">ℹ️</span>
+          *
+        </label>
+        <select id="type_vin" name="type_vin" required onchange="chargerAccords()">
           <option value="">-- Sélectionnez --</option>
           <option value="Rouge" {% if type_vin == 'Rouge' %}selected{% endif %}>Rouge</option>
           <option value="Blanc" {% if type_vin == 'Blanc' %}selected{% endif %}>Blanc</option>
@@ -49,14 +91,41 @@
         </select>
       </div>
       <div>
-        <label for="millesime">Millésime *</label>
+        <label for="millesime">
+          Millésime 
+          <span class="info-tooltip" title="L'année de récolte des raisins. Pour les vins sans millésime (NV), entrez 0 ou l'année actuelle.">ℹ️</span>
+          *
+        </label>
         <input type="number" id="millesime" name="millesime" value="{{ millesime or '' }}" 
                placeholder="Ex: 2015" min="1800" max="2100" required>
       </div>
     </div>
 
+    <!-- ═══ Cépage avec auto-complétion ═══ -->
     <div>
-      <label for="region">Région *</label>
+      <label for="cepage-search">
+        Cépage principal 
+        <span class="info-tooltip" title="Le raisin principal utilisé pour ce vin (ex: Cabernet Sauvignon, Chardonnay). Recherchez dans les 777 cépages de VinoFYI.">ℹ️</span>
+      </label>
+      <div class="cepage-wrapper">
+        <input type="text" id="cepage-search" 
+               placeholder="Tapez pour chercher un cépage (ex: Cabernet, Chardonnay...)" 
+               autocomplete="off">
+        <div id="cepage-results" class="cepage-results"></div>
+      </div>
+      <input type="hidden" id="cepage" name="cepage" value="{{ cepage or '' }}">
+      <p class="cepage-selected" id="cepage-selected" style="display:none;">
+        🍇 <span id="cepage-nom"></span>
+        <button type="button" class="btn-clear" onclick="clearCepage()">✕</button>
+      </p>
+    </div>
+
+    <div>
+      <label for="region">
+        Région 
+        <span class="info-tooltip" title="La région viticole (ex: Bordeaux, Bourgogne, Napa Valley, Barossa Valley)">ℹ️</span>
+        *
+      </label>
       <input type="text" id="region" name="region" value="{{ region or '' }}" 
              placeholder="Ex: Bordeaux, Bourgogne, Napa Valley..." required>
     </div>
@@ -71,6 +140,12 @@
       <label for="description">Description (optionnel)</label>
       <textarea id="description" name="description" rows="4" 
                 placeholder="Notes de dégustation, accord mets-vins, caractéristiques du terroir...">{{ description or '' }}</textarea>
+    </div>
+
+    <!-- Accords mets-vins dynamiques -->
+    <div id="accords-section" class="accords-section" style="display:none;">
+      <h4>🍽️ Accords suggérés</h4>
+      <div id="accords-content" class="accords-content"></div>
     </div>
 
     <!-- Info VinoFYI si présente -->
@@ -99,23 +174,19 @@ const loadingDiv = document.getElementById('search-loading');
 searchInput.addEventListener('input', function() {
   const query = this.value.trim();
   
-  // Annuler la recherche précédente
   if (searchTimeout) clearTimeout(searchTimeout);
   
-  // Cacher les résultats si moins de 2 caractères
   if (query.length < 2) {
     resultsDiv.innerHTML = '';
     resultsDiv.style.display = 'none';
     return;
   }
   
-  // Debounce : attendre 400ms après la dernière frappe
   searchTimeout = setTimeout(() => {
     performSearch(query);
   }, 400);
 });
 
-// Cacher les résultats quand on clique ailleurs
 document.addEventListener('click', function(e) {
   if (!e.target.closest('.search-section')) {
     resultsDiv.style.display = 'none';
@@ -165,7 +236,6 @@ function displayResults(results) {
   resultsDiv.innerHTML = html;
   resultsDiv.style.display = 'block';
   
-  // Ajouter les événements de clic
   document.querySelectorAll('.result-item').forEach(item => {
     item.addEventListener('click', function() {
       const slug = this.dataset.slug;
@@ -188,7 +258,6 @@ function selectWine(slug) {
         return;
       }
       
-      // Pré-remplir le formulaire
       if (data.domaine) document.getElementById('domaine').value = data.domaine;
       if (data.cuvee) document.getElementById('cuvee').value = data.cuvee;
       if (data.type_vin) {
@@ -199,11 +268,11 @@ function selectWine(slug) {
             break;
           }
         }
+        chargerAccords();
       }
       if (data.region) document.getElementById('region').value = data.region;
       if (data.description) document.getElementById('description').value = data.description;
       
-      // Afficher les infos VinoFYI
       const infoDiv = document.getElementById('vinofyi-info');
       const ratingP = document.getElementById('vinofyi-rating');
       if (data.note_moyenne && data.nombre_notes) {
@@ -211,10 +280,7 @@ function selectWine(slug) {
         infoDiv.style.display = 'block';
       }
       
-      // Focus sur le millésime (champ manquant dans VinoFYI)
       document.getElementById('millesime').focus();
-      
-      // Message de confirmation
       flashMessage('✅ Formulaire pré-rempli ! Veuillez compléter le millésime.', 'success');
     })
     .catch(err => {
@@ -224,6 +290,285 @@ function selectWine(slug) {
     });
 }
 
+// ═══════════════════════════════════════════════════════════════
+// Assistant Style VinoFYI
+// ═══════════════════════════════════════════════════════════════
+
+let stylesData = [];
+let selectedStyle = null;
+
+function toggleAssistant() {
+  const panel = document.getElementById('assistant-panel');
+  const btn = document.getElementById('btn-assistant');
+  
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    btn.textContent = '💡 Masquer l\'assistant';
+    if (stylesData.length === 0) {
+      loadStyles();
+    }
+  } else {
+    panel.style.display = 'none';
+    btn.textContent = '💡 Besoin d\'aide pour choisir ? Voir l\'assistant';
+  }
+}
+
+function loadStyles() {
+  const grid = document.getElementById('styles-grid');
+  grid.innerHTML = '<div class="styles-loading">Chargement des styles...</div>';
+  
+  fetch('/catalogue/vins/styles-vinofyi')
+    .then(response => response.json())
+    .then(data => {
+      stylesData = data.styles || [];
+      displayStyles();
+    })
+    .catch(err => {
+      grid.innerHTML = '<div class="styles-loading">Erreur de chargement.</div>';
+      console.error('Erreur chargement styles:', err);
+    });
+}
+
+function displayStyles() {
+  const grid = document.getElementById('styles-grid');
+  
+  if (stylesData.length === 0) {
+    grid.innerHTML = '<div class="styles-loading">Aucun style disponible.</div>';
+    return;
+  }
+  
+  let html = '';
+  stylesData.forEach(style => {
+    const wineTypeMap = {
+      'Red': '🔴',
+      'White': '⚪',
+      'Rose': '🌸',
+      'Sparkling': '✨',
+      'Dessert': '🍯',
+      'Fortified': '🥃'
+    };
+    const icon = wineTypeMap[style.wine_type] || '🍷';
+    
+    html += `
+      <div class="style-card" data-slug="${style.slug}" data-type="${style.wine_type}">
+        <div class="style-icon">${icon}</div>
+        <div class="style-name">${escapeHtml(style.name)}</div>
+        <div class="style-type">${escapeHtml(style.wine_type)}</div>
+      </div>
+    `;
+  });
+  
+  grid.innerHTML = html;
+  
+  document.querySelectorAll('.style-card').forEach(card => {
+    card.addEventListener('click', function() {
+      const slug = this.dataset.slug;
+      showStyleDetail(slug);
+    });
+  });
+}
+
+function showStyleDetail(slug) {
+  const style = stylesData.find(s => s.slug === slug);
+  if (!style) return;
+  
+  selectedStyle = style;
+  
+  document.getElementById('style-nom').textContent = style.name;
+  document.getElementById('style-description').textContent = style.description || 'Aucune description.';
+  
+  const temp = style.serving_temp_min && style.serving_temp_max 
+    ? `🌡️ ${style.serving_temp_min}-${style.serving_temp_max}°C`
+    : '';
+  const verre = style.glass_type 
+    ? `🥛 Verre : ${style.glass_type}`
+    : '';
+  
+  document.getElementById('style-temperature').textContent = temp;
+  document.getElementById('style-verre').textContent = verre;
+  
+  document.getElementById('style-detail').style.display = 'block';
+  
+  // Scroll vers le détail
+  document.getElementById('style-detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function appliquerStyle() {
+  if (!selectedStyle) return;
+  
+  const typeMapping = {
+    'Red': 'Rouge',
+    'White': 'Blanc',
+    'Rose': 'Rosé',
+    'Sparkling': 'Effervescent',
+    'Dessert': 'Doux',
+    'Fortified': 'Fortifié'
+  };
+  
+  const typeVin = typeMapping[selectedStyle.wine_type];
+  if (typeVin) {
+    document.getElementById('type_vin').value = typeVin;
+    chargerAccords();
+  }
+  
+  flashMessage(`✅ Style "${selectedStyle.name}" sélectionné !`, 'success');
+  
+  // Fermer l'assistant
+  toggleAssistant();
+  
+  // Focus sur le domaine
+  document.getElementById('domaine').focus();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Recherche de cépages
+// ═══════════════════════════════════════════════════════════════
+
+let cepageTimeout = null;
+const cepageInput = document.getElementById('cepage-search');
+const cepageResults = document.getElementById('cepage-results');
+let selectedCepage = null;
+
+cepageInput.addEventListener('input', function() {
+  const query = this.value.trim();
+  
+  if (cepageTimeout) clearTimeout(cepageTimeout);
+  
+  if (query.length < 2) {
+    cepageResults.innerHTML = '';
+    cepageResults.style.display = 'none';
+    return;
+  }
+  
+  cepageTimeout = setTimeout(() => {
+    searchCepages(query);
+  }, 300);
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.cepage-wrapper')) {
+    cepageResults.style.display = 'none';
+  }
+});
+
+function searchCepages(query) {
+  fetch(`/catalogue/vins/recherche-cepages?q=${encodeURIComponent(query)}`)
+    .then(response => response.json())
+    .then(data => {
+      displayCepages(data.results || []);
+    })
+    .catch(err => {
+      console.error('Erreur recherche cépages:', err);
+    });
+}
+
+function displayCepages(results) {
+  if (results.length === 0) {
+    cepageResults.innerHTML = '<div class="no-results">Aucun cépage trouvé.</div>';
+    cepageResults.style.display = 'block';
+    return;
+  }
+  
+  let html = '<ul class="cepage-list">';
+  results.slice(0, 10).forEach(grape => {
+    const colorIcon = grape.color === 'red' ? '🔴' : grape.color === 'white' ? '⚪' : '🍇';
+    html += `
+      <li class="cepage-item" data-slug="${grape.slug}" data-name="${escapeHtml(grape.name)}">
+        <span class="cepage-icon">${colorIcon}</span>
+        <span class="cepage-name">${escapeHtml(grape.name)}</span>
+      </li>
+    `;
+  });
+  html += '</ul>';
+  
+  cepageResults.innerHTML = html;
+  cepageResults.style.display = 'block';
+  
+  document.querySelectorAll('.cepage-item').forEach(item => {
+    item.addEventListener('click', function() {
+      selectCepage(this.dataset.name);
+    });
+  });
+}
+
+function selectCepage(name) {
+  selectedCepage = name;
+  document.getElementById('cepage').value = name;
+  document.getElementById('cepage-search').value = '';
+  cepageResults.style.display = 'none';
+  
+  document.getElementById('cepage-nom').textContent = name;
+  document.getElementById('cepage-selected').style.display = 'block';
+}
+
+function clearCepage() {
+  selectedCepage = null;
+  document.getElementById('cepage').value = '';
+  document.getElementById('cepage-selected').style.display = 'none';
+  document.getElementById('cepage-search').focus();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Accords mets-vins selon le type
+// ═══════════════════════════════════════════════════════════════
+
+const accordsParType = {
+  'Rouge': {
+    description: 'Vins rouges aux tanins et fruits rouges/noirs',
+    accords: ['🥩 Viande rouge grillée', '🧀 Fromage affiné', '🍖 Gibier', '🍝 Plat en sauce']
+  },
+  'Blanc': {
+    description: 'Vins blancs frais et fruités',
+    accords: ['🐟 Poisson / fruits de mer', '🦪 Huîtres', '🥗 Salade', '🐔 Volaille']
+  },
+  'Rosé': {
+    description: 'Vins rosés légers et frais',
+    accords: ['🥗 Salade méditerranéenne', '🦐 Fruits de mer', '🍕 Pizza', '🌮 Tapas']
+  },
+  'Champagne': {
+    description: 'Bulles élégantes et festives',
+    accords: ['🦪 Huîtres', '🍤 Crevettes', '🧀 Fromage blanc', '🍓 Fruits rouges']
+  },
+  'Effervescent': {
+    description: 'Vins pétillants festifs',
+    accords: ['🍤 Apéritif', '🥗 Entrées légères', '🍰 Dessert fruité']
+  },
+  'Doux': {
+    description: 'Vins sucrés et onctueux',
+    accords: ['🍰 Dessert au chocolat', '🧀 Foie gras', '🫐 Tarte aux fruits', '🧀 Roquefort']
+  },
+  'Fortifié': {
+    description: 'Vins riches et alcoolisés',
+    accords: ['🍫 Chocolat noir', '🧀 Fromage bleu', '🥜 Noix / fruits secs', '🚬 Cigare']
+  }
+};
+
+function chargerAccords() {
+  const type = document.getElementById('type_vin').value;
+  const section = document.getElementById('accords-section');
+  const content = document.getElementById('accords-content');
+  
+  if (!type || !accordsParType[type]) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  const data = accordsParType[type];
+  let html = `<p class="accord-description">${data.description}</p>`;
+  html += '<div class="accords-list">';
+  data.accords.forEach(accord => {
+    html += `<span class="accord-tag">${accord}</span>`;
+  });
+  html += '</div>';
+  
+  content.innerHTML = html;
+  section.style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Utilitaires
+// ═══════════════════════════════════════════════════════════════
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -231,7 +576,6 @@ function escapeHtml(text) {
 }
 
 function flashMessage(message, type) {
-  // Créer un flash message temporaire
   const container = document.querySelector('.container');
   const flash = document.createElement('div');
   flash.className = `flash ${type}`;
@@ -243,6 +587,14 @@ function flashMessage(message, type) {
     flash.remove();
   }, 5000);
 }
+
+// Initialiser les accords si un type est déjà sélectionné
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect = document.getElementById('type_vin');
+  if (typeSelect.value) {
+    chargerAccords();
+  }
+});
 </script>
 
 <style>
@@ -252,7 +604,7 @@ function flashMessage(message, type) {
     margin-bottom: 1.5rem;
   }
   
-  /* ─── Recherche ─── */
+  /* ─── Recherche VinoFYI ─── */
   .search-section {
     position: relative;
     margin-bottom: 1rem;
@@ -356,6 +708,218 @@ function flashMessage(message, type) {
   }
   @keyframes spin {
     to { transform: rotate(360deg); }
+  }
+  
+  /* ─── Assistant toggle ─── */
+  .assistant-toggle {
+    text-align: center;
+    margin: 1rem 0;
+  }
+  .btn-assistant {
+    background: linear-gradient(135deg, #f8f5f0, #fff);
+    border: 2px dashed var(--primary);
+    color: var(--primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-assistant:hover {
+    background: var(--primary);
+    color: white;
+    border-style: solid;
+  }
+  
+  /* ─── Assistant panel ─── */
+  .assistant-panel {
+    background: linear-gradient(135deg, #fff8f8, #fff);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .assistant-panel h3 {
+    margin-top: 0;
+    color: var(--primary);
+  }
+  .assistant-intro {
+    color: #666;
+    margin-bottom: 1rem;
+  }
+  
+  /* ─── Grille de styles ─── */
+  .styles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .styles-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 1rem;
+    color: #888;
+  }
+  .style-card {
+    background: white;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .style-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  .style-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .style-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .style-type {
+    font-size: 0.75rem;
+    color: #888;
+    margin-top: 0.25rem;
+  }
+  
+  /* ─── Détail d'un style ─── */
+  .style-detail {
+    background: white;
+    border-left: 4px solid var(--primary);
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .style-detail h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--primary);
+  }
+  .style-meta {
+    display: flex;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  .btn-apply-style {
+    background: var(--success);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  .btn-apply-style:hover {
+    background: #1b5e20;
+  }
+  
+  /* ─── Infobulles ─── */
+  .info-tooltip {
+    cursor: help;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+  }
+  .info-tooltip:hover {
+    opacity: 1;
+  }
+  
+  /* ─── Cépages ─── */
+  .cepage-wrapper {
+    position: relative;
+  }
+  .cepage-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 4px;
+  }
+  .cepage-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cepage-item {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .cepage-item:hover {
+    background: #fff5f5;
+  }
+  .cepage-icon {
+    font-size: 1.2rem;
+  }
+  .cepage-selected {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f0fff0;
+    border-radius: 6px;
+    color: #2e7d32;
+  }
+  .btn-clear {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 0.25rem;
+  }
+  
+  /* ─── Accords ─── */
+  .accords-section {
+    background: #fff8f0;
+    border-left: 4px solid #f9a825;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+  }
+  .accords-section h4 {
+    margin: 0 0 0.5rem 0;
+    color: #e65100;
+  }
+  .accord-description {
+    color: #666;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+  }
+  .accords-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .accord-tag {
+    background: white;
+    border: 1px solid #f9a825;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #e65100;
   }
   
   /* ─── Info VinoFYI ─── */

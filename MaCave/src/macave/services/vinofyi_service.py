@@ -74,6 +74,68 @@ def get_wine_detail(slug: str) -> dict[str, Any] | None:
     return _fetch_json(url)
 
 
+def get_styles() -> list[dict[str, Any]]:
+    """Liste les 19 styles de vin VinoFYI avec descriptions pédagogiques.
+
+    Returns:
+        Liste de styles avec name, slug, wine_type, description, serving_temp, etc.
+    """
+    url = f"{BASE_URL}/styles/"
+    data = _fetch_json(url)
+    if data is None:
+        return []
+    return data.get("results", [])
+
+
+def get_style_detail(slug: str) -> dict[str, Any] | None:
+    """Récupère le détail d'un style de vin.
+
+    Args:
+        slug: Identifiant du style (ex: "bold-red").
+
+    Returns:
+        Dict avec description, food_pairing, serving_temp, etc.
+    """
+    url = f"{BASE_URL}/styles/{slug}/"
+    return _fetch_json(url)
+
+
+def search_grapes(query: str) -> list[dict[str, Any]]:
+    """Recherche des cépages dans VinoFYI.
+
+    Args:
+        query: Nom du cépage (ex: "Cabernet").
+
+    Returns:
+        Liste de cépages avec name, slug, color, description.
+    """
+    if not query or len(query.strip()) < 2:
+        return []
+
+    encoded_query = urllib.parse.quote(query.strip())
+    url = f"{BASE_URL}/search/?q={encoded_query}"
+    data = _fetch_json(url)
+
+    if data is None:
+        return []
+
+    results = data.get("results", [])
+    return [r for r in results if r.get("type") == "grape"]
+
+
+def get_grape_detail(slug: str) -> dict[str, Any] | None:
+    """Récupère le détail d'un cépage.
+
+    Args:
+        slug: Identifiant du cépage (ex: "cabernet-sauvignon").
+
+    Returns:
+        Dict avec name, color, origin_country, description, etc.
+    """
+    url = f"{BASE_URL}/grapes/{slug}/"
+    return _fetch_json(url)
+
+
 def map_vinofyi_to_model(wine_data: dict[str, Any]) -> dict[str, Any]:
     """Convertit les données VinoFYI en champs compatibles avec le modèle Vin.
 
@@ -115,4 +177,26 @@ def map_vinofyi_to_model(wine_data: dict[str, Any]) -> dict[str, Any]:
         "description": description,
         "note_moyenne": wine_data.get("avg_rating", ""),
         "nombre_notes": wine_data.get("rating_count", 0),
+    }
+
+
+def get_style_accords(style_slug: str) -> dict[str, Any]:
+    """Récupère les accords mets-vins et recommandations d'un style.
+
+    Args:
+        style_slug: Identifiant du style.
+
+    Returns:
+        Dict avec description, température, verre, accords suggérés.
+    """
+    style = get_style_detail(style_slug)
+    if not style:
+        return {}
+
+    return {
+        "nom": style.get("name", ""),
+        "description": style.get("description", ""),
+        "temperature": f"{style.get('serving_temp_min', '')}-{style.get('serving_temp_max', '')}°C",
+        "verre": style.get("glass_type", ""),
+        "aging": style.get("aging_potential", ""),
     }

@@ -154,3 +154,28 @@ def detail_vinofyi(slug):
 
     mapped = vinofyi_service.map_vinofyi_to_model(wine_data)
     return jsonify(mapped)
+
+
+@bp.route("/vins/styles-vinofyi")
+def styles_vinofyi():
+    """Liste les styles de vin VinoFYI pour l'assistant."""
+    styles = vinofyi_service.get_styles()
+    return jsonify({"styles": styles})
+
+
+@bp.route("/vins/recherche-cepages")
+def recherche_cepages():
+    """Recherche AJAX de cépages dans VinoFYI."""
+    query = request.args.get("q", "").strip()
+    if len(query) < 2:
+        return jsonify({"results": []})
+
+    results = vinofyi_service.search_grapes(query)
+    return jsonify({"results": results})
+
+
+@bp.route("/vins/accords-style/<slug>")
+def accords_style(slug):
+    """Récupère les accords mets-vins et infos d'un style."""
+    accords = vinofyi_service.get_style_accords(slug)
+    return jsonify(accords)
