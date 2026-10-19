@@ -175,3 +175,46 @@ class TestStockService:
         assert stats["nb_references"] == 1
         assert stats["valeur_totale"] == 75.0
         assert stats["occupation_globale"] == (3 / 10 * 100)
+
+    def test_create_vin_success(self):
+        """Création d'un nouveau vin dans le catalogue."""
+        vin = stock_service.create_vin(
+            domaine="Domaine Test",
+            cuvee="Cuvée Test",
+            type_vin="Rouge",
+            millesime=2020,
+            region="Bordeaux",
+            description="Un vin de test",
+            photo_url="",
+            conn=self.db,
+        )
+        assert vin is not None
+        assert vin.id is not None
+        assert vin.domaine == "Domaine Test"
+        assert vin.millesime == 2020
+
+    def test_create_vin_duplicate(self):
+        """Impossible de créer un vin identique (domaine+cuvée+millesime)."""
+        vin1 = stock_service.create_vin(
+            domaine="Dup Test",
+            cuvee="Cuvée Dup",
+            type_vin="Blanc",
+            millesime=2019,
+            region="Alsace",
+            description="",
+            photo_url="",
+            conn=self.db,
+        )
+        assert vin1 is not None
+
+        vin2 = stock_service.create_vin(
+            domaine="Dup Test",
+            cuvee="Cuvée Dup",
+            type_vin="Rouge",
+            millesime=2019,
+            region="Bordeaux",
+            description="Autre description",
+            photo_url="http://test.jpg",
+            conn=self.db,
+        )
+        assert vin2 is None
