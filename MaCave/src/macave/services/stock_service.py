@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 
+from macave.db import IntegrityError
 from macave.models import Bouteille, Etagere, Evaluation, Vin
 
 
@@ -23,7 +24,7 @@ def create_etagere(
             "INSERT INTO etageres (cave_id, nom, capacite_max) VALUES (?, ?, ?)",
             (cave_id, nom, capacite_max),
         )
-    except sqlite3.IntegrityError:
+    except IntegrityError:
         return None
 
     return Etagere(id=cursor.lastrowid, nom=nom, capacite_max=capacite_max)
@@ -47,7 +48,7 @@ def delete_etagere(etagere_id: int, conn: sqlite3.Connection) -> bool:
     """
     try:
         cursor = conn.execute("DELETE FROM etageres WHERE id = ?", (etagere_id,))
-    except sqlite3.IntegrityError:
+    except IntegrityError:
         return False
     return cursor.rowcount > 0
 
@@ -158,7 +159,7 @@ def archiver_bouteille(
         return None
 
     conn.execute(
-        "UPDATE bouteilles SET statut = 'archivee', date_sortie = DATE('now') "
+        "UPDATE bouteilles SET statut = 'archivee', date_sortie = CURRENT_DATE "
         "WHERE id = ?",
         (bouteille_id,),
     )

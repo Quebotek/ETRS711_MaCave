@@ -3,6 +3,8 @@
 Documentation technique détaillée du projet MaCave.
 
 >  **Pour la documentation générale et l'installation**, consultez le [README principal](../README.md) à la racine du dépôt.
+>
+>  🐳 **Ce projet peut aussi être lancé avec Docker** : voir la section [Lancement avec Docker (recommandé)](../README.md#lancement-avec-docker-recommandé) dans le README principal.
 
 ---
 

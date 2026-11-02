@@ -14,9 +14,10 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
 4. [Persistance des données et cycle de vie](#persistance-des-données-et-cycle-de-vie)
 5. [Diagrammes UML (Mermaid)](#diagrammes-uml-mermaid)
 6. [Installation et lancement avec uv](#installation-et-lancement-avec-uv)
-7. [Qualité de code (Ruff) et Tests automatisés (pytest)](#qualité-de-code-ruff-et-tests-automatisés-pytest)
-8. [Jeu de démonstration](#jeu-de-démonstration)
-9. [Limites et perspectives](#limites-et-perspectives)
+7. [Lancement avec Docker (recommandé)](#lancement-avec-docker-recommandé)
+8. [Qualité de code (Ruff) et Tests automatisés (pytest)](#qualité-de-code-ruff-et-tests-automatisés-pytest)
+9. [Jeu de démonstration](#jeu-de-démonstration)
+10. [Limites et perspectives](#limites-et-perspectives)
 
 ---
 
@@ -358,6 +359,64 @@ uv run python seed.py
 uv run python src/macave/app.py
 ```
 Accéder ensuite à l'interface dans le navigateur : `http://127.0.0.1:5000`
+
+---
+
+## Lancement avec Docker (recommandé)
+
+Si vous ne souhaitez pas installer Python ni `uv` sur votre machine, vous pouvez lancer l'application dans un conteneur Docker. Cela garantit un environnement complètement reproductible et totalement indépendant de votre système hôte.
+
+### Prérequis
+* [Docker Engine](https://docs.docker.com/engine/install/)
+* [Docker Compose](https://docs.docker.com/compose/install/) (généralement inclus avec Docker Desktop)
+
+### 1. Construire l'image et démarrer le conteneur
+
+Depuis la racine du projet (dossier `MaCave/`) :
+
+```bash
+cd MaCave
+
+# Construction de l'image + initialisation auto de la base
+docker compose up --build -d
+```
+
+Cette commande :
+* Construit l'image Docker avec Python 3.12 et les dépendances verrouillées (`uv.lock`).
+* Crée un dossier local `MaCave/data/` contenant la base SQLite persistante (`macave.db`).
+* Lance le serveur [Gunicorn](https://gunicorn.org/) sur le port `5000`.
+* Peuple automatiquement la base avec le jeu de démonstration (`seed.py`) si la base n'existe pas encore.
+
+### 2. Accéder à l'application
+
+Ouvrez votre navigateur à l'adresse :  
+👉 `http://localhost:5000`
+
+### 3. Commandes utiles
+
+```bash
+# Voir les logs en temps réel
+docker compose logs -f macave
+
+# Arrêter le conteneur (les données dans /data sont conservées)
+docker compose down
+
+# Reconstruire complètement après une modification du code
+docker compose up --build -d
+
+# Supprimer le volume de données (⚠️ supprime la base SQLite)
+rm -rf data/
+```
+
+### 4. Personnalisation
+
+Vous pouvez modifier la clé secrète ou activer le mode debug dans le fichier `docker-compose.yml` :
+
+```yaml
+environment:
+  - SECRET_KEY=votre-cle-ultra-secrete
+  # - FLASK_DEBUG=1   # Décommenter uniquement en développement
+```
 
 ---
 

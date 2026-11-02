@@ -9,6 +9,7 @@ Vous pouvez le relancer : il détecte les données existantes et ne duplique pas
 
 from __future__ import annotations
 
+import os
 import sqlite3
 
 from macave.db import get_db
@@ -48,7 +49,7 @@ def _get_etagere_id(conn: sqlite3.Connection, cave_id: int, nom: str) -> int | N
 
 
 def main() -> None:
-    db_path = "macave.db"
+    db_path = os.environ.get("DATABASE_PATH", "macave.db")
     conn = get_db(db_path)
 
     # ------------------------------------------------------------------

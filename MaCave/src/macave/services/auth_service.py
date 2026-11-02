@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 
+from macave.db import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from macave.models import Utilisateur
@@ -34,7 +35,7 @@ def register(
                 "INSERT INTO caves (utilisateur_id) VALUES (?)",
                 (user_id,),
             )
-    except sqlite3.IntegrityError:
+    except IntegrityError:
         return None
 
     return Utilisateur(id=user_id, username=username, email=email, password_hash=password_hash)

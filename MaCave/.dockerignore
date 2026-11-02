@@ -1,0 +1,18 @@
+# Ignorer les dossiers / fichiers inutiles pour l'image Docker
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.git/
+.gitignore
+.env
+*.db
+*.db.bak*
+Dockerfile
+docker-compose.yml
+.dockerignore
+data/
