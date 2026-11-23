@@ -79,8 +79,7 @@ ETRS711_MaCave/
     │       ├── services/      # Logique métier et transactions (hors HTTP)
     │       │   ├── __init__.py
     │       │   ├── auth_service.py
-    │       │   ├── stock_service.py
-    │       │   └── vinofyi_service.py
+    │       │   └── stock_service.py
     │       ├── routes/        # Contrôleurs web Flask (blueprints)
     │       │   ├── __init__.py
     │       │   ├── auth_routes.py
@@ -152,12 +151,13 @@ classDiagram
         -int id
         -string nom
         -int capacite_max
+        -list[Bouteille] bouteilles
         +get_occupation() int
         +get_places_disponibles() int
         +peut_accueillir(nb) bool
         +modifier_capacite(nouvelle_capacite) bool
-        +ajouter_bouteille(bouteille) void
-        +retirer_bouteille(bouteille) void
+        +ajouter_bouteille(bouteille) bool
+        +retirer_bouteille(bouteille) bool
     }
 
     class Vin {
@@ -169,20 +169,22 @@ classDiagram
         -string region
         -string description
         -string photo_url
-        +calculer_note_moyenne() float
-        +get_note_affichage() string
+        -list[Evaluation] evaluations
+        +calculer_note_moyenne() float | None
+        +get_note_affichage() str
     }
 
     class Bouteille {
         -int id
         -int vin_id
+        -int cave_id
         -int etagere_id
         -float prix_achat
         -date date_ajout
         -date date_sortie
-        -string statut
-        +deplacer(nouvelle_etagere) void
-        +archiver(note, commentaire, date_sortie) Evaluation
+        -StatutBouteille statut
+        +deplacer(nouvelle_etagere) bool
+        +archiver(evaluation: Evaluation) bool
     }
 
     class Evaluation {
@@ -198,7 +200,7 @@ classDiagram
 
     Utilisateur "1" *-- "1" Cave : possede
     Cave "1" *-- "0..*" Etagere : contient
-    Etagere "0..1" o-- "0..*" Bouteille : stocke
+    Etagere "1" *-- "0..*" Bouteille : stocke
     Vin "1" <-- "0..*" Bouteille : reference
     Utilisateur "1" <-- "0..*" Evaluation : redige
     Vin "1" *-- "0..*" Evaluation : recoit
