@@ -22,6 +22,18 @@ class Bouteille:
         date_sortie: date | None = None,
         statut: StatutBouteille = StatutBouteille.EN_STOCK,
     ) -> None:
+        """Initialise une bouteille (exemplaire physique).
+
+        Args:
+            id: Identifiant unique en base de données.
+            vin_id: ID de la référence de vin (catalogue).
+            cave_id: ID de la cave propriétaire.
+            etagere_id: ID de l'étagère de stockage.
+            prix_achat: Prix payé pour cet exemplaire.
+            date_ajout: Date d'entrée dans la cave.
+            date_sortie: Date de sortie (archivage ou retrait).
+            statut: État actuel (EN_STOCK ou ARCHIVEE).
+        """
         self.id = id
         self.vin_id = vin_id
         self.cave_id = cave_id
@@ -32,6 +44,7 @@ class Bouteille:
         self.statut = statut
 
     def __repr__(self) -> str:
+        """Retourne une représentation lisible de l'objet."""
         return (
             f"Bouteille(id={self.id}, vin_id={self.vin_id}, "
             f"cave_id={self.cave_id}, etagere_id={self.etagere_id}, "

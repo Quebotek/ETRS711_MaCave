@@ -14,15 +14,27 @@ class Cave:
         utilisateur_id: int | None = None,
         etageres: list[Etagere] | None = None,
     ) -> None:
+        """Initialise une cave.
+
+        Args:
+            id: Identifiant unique en base de données.
+            utilisateur_id: ID du propriétaire de la cave.
+            etageres: Liste des étagères composant la cave.
+        """
         self.id = id
         self.utilisateur_id = utilisateur_id
         self.etageres = etageres if etageres is not None else []
 
     def __repr__(self) -> str:
+        """Retourne une représentation lisible de l'objet."""
         return f"Cave(id={self.id}, utilisateur_id={self.utilisateur_id})"
 
     def calculer_valeur_totale(self) -> float:
-        """Calcule la valeur totale du stock en évitant la division par zéro."""
+        """Calcule la valeur totale du stock en évitant la division par zéro.
+
+        Returns:
+            Somme des prix d'achat de toutes les bouteilles en stock.
+        """
         total = 0.0
         for etagere in self.etageres:
             for bouteille in etagere.bouteilles:
@@ -47,6 +59,12 @@ class Cave:
         """Retourne une étagère par son nom (unicité garantie au sein d'une cave).
 
         Règle R2 : les noms d'étagères sont uniques au sein d'une cave.
+
+        Args:
+            nom: Nom de l'étagère à rechercher.
+
+        Returns:
+            L'étagère trouvée ou None si aucun match.
         """
         for etagere in self.etageres:
             if etagere.nom == nom:
@@ -57,6 +75,9 @@ class Cave:
         """Supprime une étagère si elle est vide.
 
         Règle R5 : une étagère contenant des bouteilles ne peut pas être supprimée.
+
+        Args:
+            etagere_id: Identifiant de l'étagère à supprimer.
 
         Returns:
             True si la suppression est effectuée, False sinon.

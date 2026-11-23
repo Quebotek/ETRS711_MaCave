@@ -11,7 +11,14 @@ from . import db as db_module
 
 
 def create_app(config_name: str = "dev") -> Flask:
-    """Crée et configure l'application Flask."""
+    """Crée et configure l'application Flask.
+
+    Args:
+        config_name: Nom de la configuration (dev, test, prod).
+
+    Returns:
+        Instance de l'application Flask configurée.
+    """
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY=os.environ.get("SECRET_KEY", "dev-secret-key-change-me"),
@@ -39,6 +46,10 @@ def create_app(config_name: str = "dev") -> Flask:
     # Gestion de la base de données par requête
     @app.before_request
     def _prepare_request() -> None:
+        """Prépare l'objet g avant chaque requête.
+
+        Initialise la connexion DB et charge l'utilisateur en session.
+        """
         if "db" not in g:
             g.db = db_module.Database(app.config["DATABASE"]).__enter__()
 
@@ -52,6 +63,11 @@ def create_app(config_name: str = "dev") -> Flask:
 
     @app.teardown_appcontext
     def _close_db(exception: BaseException | None = None) -> None:
+        """Ferme la connexion DB après chaque requête.
+
+        Args:
+            exception: Exception levée pendant la requête (None si succès).
+        """
         db = g.pop("db", None)
         if db is not None:
             if exception is None:

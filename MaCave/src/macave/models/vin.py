@@ -20,6 +20,19 @@ class Vin:
         photo_url: str = "",
         evaluations: list[Evaluation] | None = None,
     ) -> None:
+        """Initialise une référence de vin.
+
+        Args:
+            id: Identifiant unique en base de données.
+            domaine: Nom du domaine viticole (ex: "Château Margaux").
+            cuvee: Nom de la cuvée (ex: "Grand Vin").
+            type_vin: Type (Rouge, Blanc, Rosé, Effervescent).
+            millesime: Année de récolte du raisin.
+            region: Région de production (ex: "Bordeaux, France").
+            description: Présentation générale du vin.
+            photo_url: URL ou chemin de l'image de l'étiquette.
+            evaluations: Liste des évaluations communautaires.
+        """
         self.id = id
         self.domaine = domaine
         self.cuvee = cuvee
@@ -31,6 +44,7 @@ class Vin:
         self.evaluations = evaluations if evaluations is not None else []
 
     def __repr__(self) -> str:
+        """Retourne une représentation lisible de l'objet."""
         return (
             f"Vin(id={self.id}, domaine={self.domaine!r}, "
             f"cuvee={self.cuvee!r}, millesime={self.millesime})"
@@ -40,7 +54,7 @@ class Vin:
         """Calcule la note moyenne communautaire.
 
         Returns:
-            Moyenne arithmétique ou None si aucune évaluation.
+            Moyenne arithmétique des notes ou None si aucune évaluation.
         """
         if not self.evaluations:
             return None
