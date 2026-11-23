@@ -191,6 +191,11 @@ def get_cave_stats(cave_id: int, conn: sqlite3.Connection) -> dict:
         (cave_id,),
     ).fetchone()["cnt"]
 
+    nb_etageres = conn.execute(
+        "SELECT COUNT(*) as cnt FROM etageres WHERE cave_id = ?",
+        (cave_id,),
+    ).fetchone()["cnt"]
+
     valeur_totale = conn.execute(
         "SELECT COALESCE(SUM(prix_achat), 0) as total FROM bouteilles "
         "WHERE cave_id = ? AND statut = 'en_stock'",
@@ -213,6 +218,7 @@ def get_cave_stats(cave_id: int, conn: sqlite3.Connection) -> dict:
     return {
         "nb_bouteilles": nb_bouteilles,
         "nb_references": nb_references,
+        "nb_etageres": nb_etageres,
         "valeur_totale": valeur_totale,
         "occupation_globale": occupation_globale,
     }
@@ -248,12 +254,21 @@ def create_vin(
     Vérifie qu'il n'existe pas déjà un vin identique
     (même domaine + cuvée + millésime).
 
+    Normalisation : les champs sont nettoyés (strip) et uniformisés en minuscules
+    pour éviter les doublons dus aux espaces et à la casse.
+
     Returns:
         Le vin créé ou None si le vin existe déjà.
     """
+    # Normalisation : strip + lowercase pour éviter doublons
+    domaine_normalized = domaine.strip().lower()
+    cuvee_normalized = cuvee.strip().lower()
+    region_normalized = region.strip().lower()
+
+    # Vérification d'existence avec valeurs normalisées
     existing = conn.execute(
-        "SELECT id FROM vins WHERE domaine = ? AND cuvee = ? AND millesime = ?",
-        (domaine, cuvee, millesime),
+        "SELECT id FROM vins WHERE LOWER(TRIM(domaine)) = ? AND LOWER(TRIM(cuvee)) = ? AND millesime = ?",
+        (domaine_normalized, cuvee_normalized, millesime),
     ).fetchone()
     if existing:
         return None

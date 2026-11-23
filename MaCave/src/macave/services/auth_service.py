@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import sqlite3
 
-from macave.db import IntegrityError
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from macave.db import IntegrityError
 from macave.models import Utilisateur
 
 

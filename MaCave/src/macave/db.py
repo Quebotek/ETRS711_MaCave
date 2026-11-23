@@ -13,7 +13,7 @@ DATABASE_URL = os.environ.get("DATABASE_URL", "")
 try:
     from pymysql.err import IntegrityError
 except ImportError:
-    from sqlite3 import IntegrityError
+    pass
 
 # ---------------------------------------------------------------------------
 #  MariaDB / MySQL wrapper  (activé si DATABASE_URL commence par mysql)
@@ -31,7 +31,7 @@ class _MySQLCursor:
     def _tr(sql: str) -> str:
         return sql.replace("?", "%s")
 
-    def execute(self, sql: str, params: Any = ()) -> "_MySQLCursor":
+    def execute(self, sql: str, params: Any = ()) -> _MySQLCursor:
         self._cursor.execute(self._tr(sql), params)
         return self
 
@@ -96,7 +96,7 @@ class _MySQLConnection:
     def close(self) -> None:
         self._conn.close()
 
-    def __enter__(self) -> "_MySQLConnection":
+    def __enter__(self) -> _MySQLConnection:
         return self
 
     def __exit__(

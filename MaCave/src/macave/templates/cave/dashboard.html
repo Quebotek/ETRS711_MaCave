@@ -13,6 +13,10 @@
  <div class="label">Références distinctes</div>
  </div>
  <div class="stat-box">
+ <div class="value">{{ stats.nb_etageres }}</div>
+ <div class="label">Nombre d'étagères</div>
+ </div>
+ <div class="stat-box">
  <div class="value">{{ stats.valeur_totale }} €</div>
  <div class="label">Valeur totale</div>
  </div>
@@ -32,7 +36,10 @@
 <div class="card">
  <div class="header-with-action">
  <h3>Mes étagères</h3>
+ <div style="display: flex; gap: 0.5rem;">
+ <a href="{{ url_for('inventaire.historique') }}" class="btn" style="background: #6c757d;">📜 Historique</a>
  <a href="{{ url_for('cave.ajouter_bouteilles') }}" class="btn">+ Ajouter des bouteilles</a>
+ </div>
  </div>
  {% if etageres %}
  <table>

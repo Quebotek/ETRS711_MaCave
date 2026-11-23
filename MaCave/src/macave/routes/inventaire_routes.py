@@ -27,8 +27,35 @@ def index():
         flash("Aucune cave trouvée.", "warning")
         return redirect(url_for("auth.login"))
 
+    # Récupérer les paramètres de tri
+    sort_by = request.args.get("sort", "domaine")
+    sort_order = request.args.get("order", "asc")
+
+    # Validation des champs de tri autorisés
+    allowed_sort = [
+        "domaine", "cuvee", "type_vin", "millesime",
+        "region", "prix_achat", "note_moyenne", "date_ajout"
+    ]
+    if sort_by not in allowed_sort:
+        sort_by = "domaine"
+    if sort_order not in ["asc", "desc"]:
+        sort_order = "asc"
+
+    # Mapping des champs de tri
+    sort_mapping = {
+        "domaine": "v.domaine",
+        "cuvee": "v.cuvee",
+        "type_vin": "v.type_vin",
+        "millesime": "v.millesime",
+        "region": "v.region",
+        "prix_achat": "b.prix_achat",
+        "note_moyenne": "note_moyenne",
+        "date_ajout": "b.date_ajout",
+    }
+    order_clause = f"{sort_mapping[sort_by]} {sort_order.upper()}"
+
     # Récupérer toutes les bouteilles en stock avec les détails du vin
-    rows = g.db.execute("""
+    rows = g.db.execute(f"""
         SELECT
             b.id as bouteille_id,
             b.prix_achat,
@@ -47,7 +74,7 @@ def index():
         JOIN vins v ON b.vin_id = v.id
         LEFT JOIN etageres e ON b.etagere_id = e.id
         WHERE b.cave_id = ? AND b.statut = 'en_stock'
-        ORDER BY v.domaine, v.cuvee, b.date_ajout DESC
+        ORDER BY {order_clause}
     """, (cave_id,)).fetchall()
 
     # Regrouper les bouteilles par vin
@@ -128,7 +155,9 @@ def index():
         regions=[r["region"] for r in regions],
         current_type=type_filter,
         current_region=region_filter,
-        current_search=search
+        current_search=search,
+        current_sort=sort_by,
+        current_order=sort_order
     )
 
 
@@ -296,3 +325,85 @@ def modifier_evaluation(evaluation_id):
 
     flash("Évaluation mise à jour avec succès !", "success")
     return redirect(url_for("inventaire.index"))
+
+
+@bp.route("/historique")
+def historique():
+    """Page d'historique des dégustations (bouteilles archivées)."""
+    cave_id = _get_cave_id()
+    if cave_id is None:
+        flash("Aucune cave trouvée.", "warning")
+        return redirect(url_for("auth.login"))
+
+    # Récupérer les paramètres de tri
+    sort_by = request.args.get("sort", "date_sortie")
+    sort_order = request.args.get("order", "desc")
+
+    # Validation des champs de tri autorisés
+    allowed_sort = ["date_sortie", "note", "domaine", "cuvee", "millesime"]
+    if sort_by not in allowed_sort:
+        sort_by = "date_sortie"
+    if sort_order not in ["asc", "desc"]:
+        sort_order = "desc"
+
+    # Mapping des champs de tri
+    sort_mapping = {
+        "date_sortie": "b.date_sortie",
+        "note": "e.note",
+        "domaine": "v.domaine",
+        "cuvee": "v.cuvee",
+        "millesime": "v.millesime",
+    }
+    order_clause = f"{sort_mapping[sort_by]} {sort_order.upper()}"
+
+    # Récupérer toutes les bouteilles archivées avec les détails
+    rows = g.db.execute(f"""
+        SELECT
+            b.id as bouteille_id,
+            b.prix_achat,
+            b.date_ajout,
+            b.date_sortie,
+            e.note,
+            e.commentaire,
+            e.date_degustation,
+            v.id as vin_id,
+            v.domaine,
+            v.cuvee,
+            v.type_vin,
+            v.millesime,
+            v.region,
+            v.photo_url
+        FROM bouteilles b
+        JOIN vins v ON b.vin_id = v.id
+        LEFT JOIN evaluations e ON b.id = e.bouteille_id
+        WHERE b.cave_id = ? AND b.statut = 'archivee'
+        ORDER BY {order_clause}
+    """, (cave_id,)).fetchall()
+
+    bouteilles_archivees = []
+    for row in rows:
+        bouteilles_archivees.append({
+            "id": row["bouteille_id"],
+            "prix_achat": row["prix_achat"],
+            "date_ajout": row["date_ajout"],
+            "date_sortie": row["date_sortie"],
+            "note": row["note"],
+            "commentaire": row["commentaire"],
+            "date_degustation": row["date_degustation"],
+            "vin": {
+                "id": row["vin_id"],
+                "domaine": row["domaine"],
+                "cuvee": row["cuvee"],
+                "type_vin": row["type_vin"],
+                "millesime": row["millesime"],
+                "region": row["region"],
+                "photo_url": row["photo_url"],
+            }
+        })
+
+    return render_template(
+        "inventaire/historique.html",
+        bouteilles=bouteilles_archivees,
+        current_sort=sort_by,
+        current_order=sort_order
+    )

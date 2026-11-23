@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}Historique des dégustations — MaCave{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="header-with-action">
+        <h2>📜 Historique des dégustations</h2>
+        <a href="{{ url_for('inventaire.index') }}" class="btn">Retour à l'inventaire</a>
+    </div>
+    
+    {% if bouteilles %}
+    <p style="color: #666; margin-bottom: 1rem;">
+        {{ bouteilles|length }} bouteille(s) archivée(s)
+    </p>
+    
+    <div class="sort-controls" style="margin-bottom: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 6px;">
+        <strong>Trier par :</strong>
+        <a href="{{ url_for('inventaire.historique', sort='date_sortie', order='desc' if current_sort == 'date_sortie' and current_order == 'desc' else 'asc') }}" 
+           class="btn-sort {% if current_sort == 'date_sortie' %}active{% endif %}">
+            Date {% if current_sort == 'date_sortie' %}{{ "▼" if current_order == 'desc' else "▲" }}{% endif %}
+        </a>
+        <a href="{{ url_for('inventaire.historique', sort='note', order='desc' if current_sort == 'note' and current_order == 'desc' else 'asc') }}" 
+           class="btn-sort {% if current_sort == 'note' %}active{% endif %}">
+            Note {% if current_sort == 'note' %}{{ "▼" if current_order == 'desc' else "▲" }}{% endif %}
+        </a>
+        <a href="{{ url_for('inventaire.historique', sort='domaine', order='asc' if current_sort == 'domaine' and current_order == 'asc' else 'desc') }}" 
+           class="btn-sort {% if current_sort == 'domaine' %}active{% endif %}">
+            Domaine {% if current_sort == 'domaine' %}{{ "▲" if current_order == 'asc' else "▼" }}{% endif %}
+        </a>
+        <a href="{{ url_for('inventaire.historique', sort='millesime', order='desc' if current_sort == 'millesime' and current_order == 'desc' else 'asc') }}" 
+           class="btn-sort {% if current_sort == 'millesime' %}active{% endif %}">
+            Millésime {% if current_sort == 'millesime' %}{{ "▼" if current_order == 'desc' else "▲" }}{% endif %}
+        </a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Vin</th>
+                <th>Millésime</th>
+                <th>Date de dégustation</th>
+                <th>Note</th>
+                <th>Commentaire</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for b in bouteilles %}
+            <tr>
+                <td>
+                    <strong>{{ b.vin.domaine }}</strong><br>
+                    <small style="color: #666;">{{ b.vin.cuvee }}</small>
+                </td>
+                <td>{{ b.vin.millesime }}</td>
+                <td>{{ b.date_sortie }}</td>
+                <td>
+                    {% if b.note is not none %}
+                    <span class="badge-note" style="
+                        display: inline-block;
+                        padding: 0.25rem 0.5rem;
+                        border-radius: 4px;
+                        font-weight: bold;
+                        font-size: 0.9rem;
+                        {% if b.note >= 16 %}background: #4caf50; color: white;
+                        {% elif b.note >= 12 %}background: #ff9800; color: white;
+                        {% elif b.note >= 8 %}background: #ffc107; color: #333;
+                        {% else %}background: #f44336; color: white;{% endif %}
+                    ">
+                        {{ b.note }}/20
+                    </span>
+                    {% else %}
+                    <span style="color: #999;">—</span>
+                    {% endif %}
+                </td>
+                <td style="max-width: 300px;">
+                    {% if b.commentaire %}
+                    <em style="color: #666;">{{ b.commentaire[:100] }}{% if b.commentaire|length > 100 %}...{% endif %}</em>
+                    {% else %}
+                    <span style="color: #999;">Aucun commentaire</span>
+                    {% endif %}
+                </td>
+                <td>{{ "%.2f"|format(b.prix_achat) }} €</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #666;">
+        <p style="font-size: 1.2rem;">🍷 Aucune dégustation enregistrée pour le moment</p>
+        <p>Archivez vos premières bouteilles pour voir apparaître votre historique !</p>
+        <a href="{{ url_for('inventaire.index') }}" class="btn" style="margin-top: 1rem;">Voir mon inventaire</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.header-with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.sort-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-sort {
+    padding: 0.4rem 0.8rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.btn-sort:hover {
+    background: #f0f0f0;
+    border-color: #8B0000;
+}
+
+.btn-sort.active {
+    background: #8B0000;
+    color: white;
+    border-color: #8B0000;
+}
+
+.badge-note {
+    min-width: 50px;
+    text-align: center;
+}
+
+table td {
+    vertical-align: middle;
+}
+</style>
+{% endblock %}

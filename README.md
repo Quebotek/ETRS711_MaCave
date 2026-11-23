@@ -34,12 +34,17 @@ Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation 
   * Enregistrement de notes (0 à 20) et commentaires lors de l'archivage[cite: 4].
   * Calcul dynamique de la note moyenne communautaire (affichage explicite « Non évalué » si aucune note)[cite: 4].
   * Modification restreinte à l'auteur de l'évaluation[cite: 4].
-* **Tableau de bord personnel :** Nombre de bouteilles, nombre de références distinctes, occupation globale et valeur totale financière du stock (avec gestion explicite sans étagère pour éviter la division par zéro)[cite: 4].
+* **Tableau de bord personnel :** Nombre de bouteilles, nombre de références distinctes, **nombre d'étagères**, occupation globale et valeur totale financière du stock (avec gestion explicite sans étagère pour éviter la division par zéro)[cite: 4].
 * **Interface web enrichie :**
   * **Inventaire visuel** avec cartes de vins, **photos** (upload ou URL) et filtres (recherche, type, région).
+  * **Tri dynamique** de l'inventaire par domaine, cuvée, type, millésime, région, prix, note moyenne ou date d'ajout.
   * **Fiches de vins détaillées** avec notes communautaires en évidence, **conseils & accords mets-vins**, et toutes les évaluations.
   * **Système de notation complet** : saisie de notes 0-20, commentaires de dégustation, modification de ses propres évaluations.
+  * **Historique des dégustations** avec toutes les bouteilles archivées, triables par date, note, domaine ou millésime.
   * **Catalogue amélioré** avec affichage des notes moyennes, nombre d'évaluations et gestion des images.
+* **Gestion du profil :**
+  * Modification du nom d'utilisateur, de l'email et du mot de passe.
+  * Validation des unicités et sécurité des mots de passe (hachage).
 
 ---
 

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Mon Profil — MaCave{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2>Mon Profil</h2>
+    
+    <form method="POST" style="margin-top: 1.5rem;">
+        <div class="form-group">
+            <label for="username">Nom d'utilisateur</label>
+            <input 
+                type="text" 
+                id="username" 
+                name="username" 
+                value="{{ user.username }}" 
+                required
+                minlength="3"
+                placeholder="Votre nom d'utilisateur"
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Adresse email</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                value="{{ user.email }}" 
+                required
+                placeholder="votre@email.com"
+            >
+        </div>
+        
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid #ddd;">
+        
+        <h3 style="margin-bottom: 1rem;">Changer le mot de passe (optionnel)</h3>
+        
+        <div class="form-group">
+            <label for="nouveau_mdp">Nouveau mot de passe</label>
+            <input 
+                type="password" 
+                id="nouveau_mdp" 
+                name="nouveau_mdp" 
+                minlength="6"
+                placeholder="Laisser vide pour conserver le mot de passe actuel"
+            >
+            <small style="color: #666; display: block; margin-top: 0.25rem;">
+                Minimum 6 caractères. Laisser vide pour ne pas le modifier.
+            </small>
+        </div>
+        
+        <div class="form-group">
+            <label for="confirmation_mdp">Confirmer le nouveau mot de passe</label>
+            <input 
+                type="password" 
+                id="confirmation_mdp" 
+                name="confirmation_mdp" 
+                minlength="6"
+                placeholder="Confirmez le nouveau mot de passe"
+            >
+        </div>
+        
+        <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+            <a href="{{ url_for('cave.dashboard') }}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #8B0000;
+        box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.1);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    h3 {
+        color: #8B0000;
+        font-size: 1.1rem;
+    }
+    
+    hr {
+        border: none;
+        border-top: 1px solid #ddd;
+    }
+</style>
+{% endblock %}

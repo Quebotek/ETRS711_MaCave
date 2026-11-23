@@ -9,7 +9,7 @@
  </div>
  </div>
 
- <!-- Filtres -->
+ <!-- Filtres et Tri -->
  <form method="GET" class="filtres-form" style="margin: 1.5rem 0;">
  <div class="filtres-grid">
  <div>
@@ -34,6 +34,26 @@
  {% for r in regions %}
  <option value="{{ r }}" {% if r == current_region %}selected{% endif %}>{{ r }}</option>
  {% endfor %}
+ </select>
+ </div>
+ <div>
+ <label for="sort">Trier par</label>
+ <select id="sort" name="sort" onchange="this.form.submit()">
+ <option value="domaine" {% if current_sort == 'domaine' %}selected{% endif %}>Domaine</option>
+ <option value="cuvee" {% if current_sort == 'cuvee' %}selected{% endif %}>Cuvée</option>
+ <option value="type_vin" {% if current_sort == 'type_vin' %}selected{% endif %}>Type</option>
+ <option value="millesime" {% if current_sort == 'millesime' %}selected{% endif %}>Millésime</option>
+ <option value="region" {% if current_sort == 'region' %}selected{% endif %}>Région</option>
+ <option value="prix_achat" {% if current_sort == 'prix_achat' %}selected{% endif %}>Prix</option>
+ <option value="note_moyenne" {% if current_sort == 'note_moyenne' %}selected{% endif %}>Note moyenne</option>
+ <option value="date_ajout" {% if current_sort == 'date_ajout' %}selected{% endif %}>Date d'ajout</option>
+ </select>
+ </div>
+ <div>
+ <label for="order">Ordre</label>
+ <select id="order" name="order" onchange="this.form.submit()">
+ <option value="asc" {% if current_order == 'asc' %}selected{% endif %}>Croissant ↑</option>
+ <option value="desc" {% if current_order == 'desc' %}selected{% endif %}>Décroissant ↓</option>
  </select>
  </div>
  <div style="display: flex; align-items: flex-end;">
