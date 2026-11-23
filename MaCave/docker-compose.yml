@@ -32,6 +32,9 @@ services:
     environment:
       - SECRET_KEY=${SECRET_KEY:-macave-dev-secret-key}
       - DATABASE_URL=mysql+pymysql://macave:macave_password@db:3306/macave
+      - FLASK_DEBUG=false
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
     restart: unless-stopped
 
 volumes:

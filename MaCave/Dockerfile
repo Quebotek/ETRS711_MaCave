@@ -48,5 +48,11 @@ USER macave
 # Exposition du port
 EXPOSE 5000
 
-# Script d'entrée : init DB + seed, puis lancement Gunicorn
-CMD ["sh", "-c", "python init_db.py && python seed.py; exec gunicorn --bind 0.0.0.0:5000 --workers 2 --threads 4 macave.app:app"]
+# Variables Flask
+ENV FLASK_APP=src/macave/app.py
+ENV FLASK_HOST=0.0.0.0
+ENV FLASK_PORT=5000
+ENV FLASK_DEBUG=false
+
+# Script d'entrée : init DB + seed, puis lancement du serveur Flask
+CMD ["sh", "-c", "python init_db.py && python seed.py; exec python src/macave/app.py"]

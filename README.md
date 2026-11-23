@@ -1,6 +1,6 @@
 # MaCave — Gestion collaborative d'une cave à vin
 
-Application web multi-utilisateurs développée en Python (Flask) et SQLite permettant aux amateurs de vin de gérer leur stock privé de bouteilles, d'organiser leurs étagères et de partager leurs évaluations au sein d'une communauté[cite: 1, 5].
+Application web multi-utilisateurs développée en **Python avec Flask** et **SQLite** permettant aux amateurs de vin de gérer leur stock privé de bouteilles, d'organiser leurs étagères et de partager leurs évaluations au sein d'une communauté[cite: 1, 5].
 
 Projet réalisé dans le cadre de l'UE **ETRS711** (Conception et Programmation Orientée Objet)[cite: 1].
 
@@ -110,7 +110,8 @@ ETRS711_MaCave/
 
 ## Persistance des données et cycle de vie
 
-* **Fichier SQLite local :** La base est stockée dans `MaCave/macave.db`[cite: 5]. Les données sont écrites directement sur disque et persistent après extinction (`Ctrl+C`) et relance de l'application[cite: 6].
+* **Environnement local (SQLite) :** La base est stockée dans `MaCave/macave.db`[cite: 5]. Les données sont écrites directement sur disque et persistent après extinction (`Ctrl+C`) et relance de l'application[cite: 6].
+* **Environnement Docker (MariaDB) :** En conteneur, l'application utilise MariaDB pour la persistance (voir [docker-compose.yml](MaCave/docker-compose.yml)).
 * **Idempotence :** Le schéma s'appuie sur `CREATE TABLE IF NOT EXISTS` pour éviter d'altérer les enregistrements existants au redémarrage.
 * **Clés étrangères :** L'activation explicite de `PRAGMA foreign_keys = ON;` assure le contrôle référentiel côté SQLite[cite: 5].
 * **Environnement de test isolé :** La suite de tests tourne sur une base éphémère en mémoire vive (`:memory:`), évitant tout impact sur la base de développement.
@@ -383,8 +384,8 @@ docker compose up --build -d
 
 Cette commande :
 * Construit l'image Docker avec Python 3.12 et les dépendances verrouillées (`uv.lock`).
-* Crée un dossier local `MaCave/data/` contenant la base SQLite persistante (`macave.db`).
-* Lance le serveur [Gunicorn](https://gunicorn.org/) sur le port `5000`.
+* Crée un dossier local `MaCave/data/` contenant la base **MariaDB** persistante.
+* Lance l'application **Flask** avec son serveur intégré sur le port `5000`.
 * Peuple automatiquement la base avec le jeu de démonstration (`seed.py`) si la base n'existe pas encore.
 
 ### 2. Accéder à l'application
@@ -410,12 +411,14 @@ rm -rf data/
 
 ### 4. Personnalisation
 
-Vous pouvez modifier la clé secrète ou activer le mode debug dans le fichier `docker-compose.yml` :
+Vous pouvez modifier les variables d'environnement dans le fichier `docker-compose.yml` :
 
 ```yaml
 environment:
   - SECRET_KEY=votre-cle-ultra-secrete
-  # - FLASK_DEBUG=1   # Décommenter uniquement en développement
+  - FLASK_DEBUG=false      # Mettre à true pour le débogage
+  - FLASK_HOST=0.0.0.0     # Interface d'écoute
+  - FLASK_PORT=5000        # Port d'écoute
 ```
 
 ---

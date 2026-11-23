@@ -1,5 +1,7 @@
 """Point d'entrée exécutable de l'application Flask."""
 
+import os
+
 from macave import create_app
 
 app = create_app()
@@ -16,4 +18,9 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Mode debug contrôlé par variable d'environnement
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    # Hôte et port configurables (utile pour Docker)
+    host = os.environ.get("FLASK_HOST", "127.0.0.1")
+    port = int(os.environ.get("FLASK_PORT", 5000))
+    app.run(debug=debug_mode, host=host, port=port)
